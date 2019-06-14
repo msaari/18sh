@@ -3,7 +3,9 @@ const Configstore = require("configstore")
 
 const conf = new Configstore("18sh")
 const gameState = {
-	sharesOwned: []
+	sharesOwned: [],
+	cash: [],
+	values: []
 }
 
 const buy = (buyer, object, count = 1, silent = false) => {
@@ -59,6 +61,8 @@ const holdings = () => {
 	let holdings = ""
 	Object.keys(gameState.sharesOwned).forEach(owner => {
 		holdings += `${owner}:`
+		if (!gameState.cash[owner]) gameState.cash[owner] = 0
+		holdings += `\tCASH: $${gameState.cash[owner]}`
 		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
 			if (gameState.sharesOwned[owner][company] > 0) {
 				holdings += `\t${company}: ${gameState.sharesOwned[owner][company]}`
@@ -69,8 +73,57 @@ const holdings = () => {
 	console.log(holdings)
 }
 
+const dividend = (payingCompany, value, silent = false) => {
+	payingCompany = payingCompany.toUpperCase()
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		Object.keys(gameState.sharesOwned[owner]).forEach(ownedCompany => {
+			if (payingCompany !== ownedCompany) return
+			const moneyEarned = gameState.sharesOwned[owner][payingCompany] * value
+			if (isNaN(gameState.cash[owner])) gameState.cash[owner] = 0
+			gameState.cash[owner] += parseInt(moneyEarned)
+			if (!silent) {
+				console.log(
+					`${payingCompany} pays ${owner} $${moneyEarned} for ${
+						gameState.sharesOwned[owner][payingCompany]
+					} shares.`
+				)
+			}
+		})
+	})
+}
+
+const value = (company, value, silent = false) => {
+	company = company.toUpperCase()
+	gameState.values[company] = value
+	if (!silent) {
+		console.log(`${company} value set to ${value}.`)
+	}
+}
+
+const values = () => {
+	let values = ""
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		values += `${owner}:\n`
+		if (!gameState.cash[owner]) gameState.cash[owner] = 0
+		let money = gameState.cash[owner]
+		values += `\tCASH: $${gameState.cash[owner]}`
+		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+			let companyValue =
+				gameState.sharesOwned[owner][company] * gameState.values[company]
+			if (companyValue > 0) {
+				money += parseInt(companyValue)
+				values += `\t${company}: ${companyValue}`
+			}
+		})
+		values += `\n\t	TOTAL: $${money}\n\n`
+	})
+	console.log(values)
+}
+
 const updateGameState = commandHistory => {
 	gameState.sharesOwned = []
+	gameState.cash = []
+	gameState.values = []
 	const silent = true
 	commandHistory.map(command => perform(command, silent))
 }
@@ -91,25 +144,65 @@ const perform = (command, silent = false) => {
 				holdings()
 				addToHistory = false
 				break
+			case "v":
+			case "va":
+			case "val":
+			case "valu":
+			case "value":
+			case "values":
+				values()
+				addToHistory = false
+				break
 			default:
 				console.log("Unrecognized command!")
 		}
 	}
 	if (parts.length > 2) {
-		const count = parts[3] ? parts[3] : 1
-		switch (parts[1]) {
+		let subject = parts[0]
+		let verb = parts[1]
+		let object = parts[2]
+		let count = parts[3] ? parts[3] : 1
+		if (isNaN(parseInt(count)) && !isNaN(parseInt(object))) {
+			let temp = count
+			count = object
+			object = temp
+		}
+		switch (verb) {
 			case "b":
 			case "bu":
 			case "buy":
 			case "buys":
-				buy(parts[0], parts[2], count, silent)
+				buy(subject, object, count, silent)
 				addToHistory = true
 				break
 			case "s":
 			case "se":
 			case "sell":
 			case "sells":
-				sell(parts[0], parts[2], count, silent)
+				sell(subject, object, count, silent)
+				addToHistory = true
+				break
+			case "d":
+			case "di":
+			case "div":
+			case "divi":
+			case "divid":
+			case "divide":
+			case "dividen":
+			case "dividend":
+			case "p":
+			case "pa":
+			case "pay":
+			case "pays":
+				dividend(subject, object, silent)
+				addToHistory = true
+				break
+			case "v":
+			case "va":
+			case "val":
+			case "valu":
+			case "value":
+				value(subject, object, silent)
 				addToHistory = true
 				break
 			default:
