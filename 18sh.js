@@ -1,11 +1,17 @@
+"use strict"
+
 const inquirer = require("inquirer")
 const Configstore = require("configstore")
+const generateName = require("./modules/generateName.js")
+const term = require("terminal-kit").terminal
 
 const conf = new Configstore("18sh")
 const gameState = {
+	gameName: "",
 	sharesOwned: [],
 	cash: [],
-	values: []
+	values: [],
+	undid: ""
 }
 
 const buy = (buyer, object, count = 1, silent = false) => {
@@ -19,7 +25,7 @@ const buy = (buyer, object, count = 1, silent = false) => {
 	gameState.sharesOwned[buyer][object] += parseInt(count)
 
 	if (!silent) {
-		console.log(
+		term(
 			`${buyer} buys ${object} and now has ${
 				gameState.sharesOwned[buyer][object]
 			}.`
@@ -37,7 +43,7 @@ const sell = (seller, object, count = 1, silent = false) => {
 
 	if (gameState.sharesOwned[seller][object] < count) {
 		if (!silent) {
-			console.log(
+			term(
 				`${seller} only has ${
 					gameState.sharesOwned[seller][object]
 				}, selling all.`
@@ -49,7 +55,7 @@ const sell = (seller, object, count = 1, silent = false) => {
 	gameState.sharesOwned[seller][object] -= parseInt(count)
 
 	if (!silent) {
-		console.log(
+		term(
 			`${seller} sells ${object} and now has ${
 				gameState.sharesOwned[seller][object]
 			}.`
@@ -70,7 +76,7 @@ const holdings = () => {
 		})
 		holdings += "\n"
 	})
-	console.log(holdings)
+	term(holdings)
 }
 
 const dividend = (payingCompany, value, silent = false) => {
@@ -82,7 +88,7 @@ const dividend = (payingCompany, value, silent = false) => {
 			if (isNaN(gameState.cash[owner])) gameState.cash[owner] = 0
 			gameState.cash[owner] += parseInt(moneyEarned)
 			if (!silent) {
-				console.log(
+				term(
 					`${payingCompany} pays ${owner} $${moneyEarned} for ${
 						gameState.sharesOwned[owner][payingCompany]
 					} shares.`
@@ -96,7 +102,7 @@ const value = (company, value, silent = false) => {
 	company = company.toUpperCase()
 	gameState.values[company] = value
 	if (!silent) {
-		console.log(`${company} value set to ${value}.`)
+		term(`${company} value set to ${value}.`)
 	}
 }
 
@@ -117,7 +123,7 @@ const values = () => {
 		})
 		values += `\n\t	TOTAL: $${money}\n\n`
 	})
-	console.log(values)
+	term(values)
 }
 
 const updateGameState = commandHistory => {
@@ -128,6 +134,40 @@ const updateGameState = commandHistory => {
 	commandHistory.map(command => perform(command, silent))
 }
 
+const open = name => {
+	if (conf.has(name)) {
+		gameState.gameName = name
+		updateGameState(conf.get(name))
+		term(`Opened game '${name}'.`)
+		conf.set("currentGameName", name)
+	} else {
+		term(`Game '${name}' doesn't exist.`)
+	}
+}
+
+const listGames = () => {
+	Object.keys(conf.all).forEach(key => {
+		if (key === "currentGameName") return
+		term(key)
+	})
+}
+
+const deleteGame = name => {
+	if (conf.has(name)) {
+		conf.delete(name)
+		term(`Deleted '${name}'.`)
+	} else {
+		term(`Game '${name}' doesn't exist.`)
+	}
+}
+
+/**
+ * Performs the given command.
+ *
+ * @param {string} command The command string.
+ * @param {boolean} silent If true, don't output anything.
+ * @returns {boolean} True, if command succeeded and should be logged.
+ */
 const perform = (command, silent = false) => {
 	const parts = command.split(" ")
 	var addToHistory = false
@@ -153,8 +193,34 @@ const perform = (command, silent = false) => {
 				values()
 				addToHistory = false
 				break
+			case "l":
+			case "li":
+			case "lis":
+			case "list":
+				listGames()
+				addToHistory = false
+				break
 			default:
-				console.log("Unrecognized command!")
+				term("Unrecognized command!")
+		}
+	}
+	if (parts.length == 2) {
+		let verb = parts[0]
+		let object = parts[1]
+		switch (verb) {
+			case "o":
+			case "op":
+			case "ope":
+			case "open":
+				open(object)
+				addToHistory = false
+				break
+			case "delete":
+				deleteGame(object)
+				addToHistory = false
+				break
+			default:
+				term("Unrecognized command!")
 		}
 	}
 	if (parts.length > 2) {
@@ -206,13 +272,14 @@ const perform = (command, silent = false) => {
 				addToHistory = true
 				break
 			default:
-				console.log("Unrecognized command!")
+				term("Unrecognized command!")
 		}
 	}
 	return addToHistory
 }
 
 const commandPrompt = () => {
+	var commandHistory = []
 	const question = [
 		{
 			type: "input",
@@ -222,22 +289,33 @@ const commandPrompt = () => {
 	]
 	inquirer.prompt(question).then(answers => {
 		if (answers.command === "undo") {
-			var commandHistory = conf.get("commandHistory")
-			commandHistory.pop()
+			commandHistory = conf.get(gameState.gameName)
+			gameState.undid = commandHistory.pop()
 			updateGameState(commandHistory)
-			conf.set("commandHistory", commandHistory)
+			conf.set(gameState.gameName, commandHistory)
+			term(`Undid "${gameState.undid}".`)
 			commandPrompt()
 		} else if (answers.command !== "quit" && answers.command !== "exit") {
-			var commandHistory = conf.get("commandHistory")
+			commandHistory = conf.get(gameState.gameName)
 			if (!commandHistory) commandHistory = new Array()
 			if (perform(answers.command)) {
 				commandHistory.push(answers.command)
-				conf.set("commandHistory", commandHistory)
+				conf.set(gameState.gameName, commandHistory)
 			}
 			commandPrompt()
 		}
 	})
 }
 
-conf.clear()
+let currentGameName = conf.get("currentGameName")
+if (!currentGameName) {
+	currentGameName = generateName()
+	gameState.gameName = currentGameName
+	term(`Your game name is ^y'${gameState.gameName}'^\n`)
+	conf.set("currentGameName", currentGameName)
+} else if (currentGameName) {
+	term(`Continuing game ^y'${currentGameName}'^\n`)
+	gameState.gameName = currentGameName
+	updateGameState(conf.get(gameState.gameName))
+}
 commandPrompt()

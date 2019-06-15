@@ -2,7 +2,7 @@
   "name": "18sh",
   "version": "0.1.0",
   "description": "An 18xx shell.",
-  "main": "index.js",
+  "main": "18sh.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "configstore": "^5.0.0",
-    "inquirer": "^6.3.1"
+    "inquirer": "^6.3.1",
+    "terminal-kit": "^1.28.1"
   },
   "devDependencies": {
     "eslint": "^5.16.0"
