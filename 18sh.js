@@ -48,8 +48,5 @@ const commandPrompt = () => {
 	)
 }
 
-term.fullscreen()
-term.nextLine()
 gameState.initialize()
-gameState.showStatus()
 commandPrompt()

@@ -5,6 +5,7 @@ const term = require("terminal-kit").terminal
 const nameGenerator = require("./generateName.js")
 const parser = require("./parser.js")
 const Table = require("cli-table")
+const statusBar = require("./statusBar")
 
 const conf = new Configstore("18sh")
 
@@ -40,6 +41,18 @@ const addCommandToHistory = command => {
 	saveCommandHistory(commandHistory)
 }
 
+const getAllCompanies = () => {
+	const allCompanies = []
+
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+			allCompanies.push(company)
+		})
+	})
+
+	return Array.from(new Set(allCompanies))
+}
+
 const undo = () => {
 	var commandHistory = getCommandHistory()
 	var undid = commandHistory.pop()
@@ -49,6 +62,9 @@ const undo = () => {
 }
 
 const initialize = () => {
+	term.fullscreen()
+	term.nextLine()
+
 	let currentGameName = conf.get("currentGameName")
 	if (!currentGameName) {
 		currentGameName = nameGenerator.generateName()
@@ -60,6 +76,7 @@ const initialize = () => {
 		setName(currentGameName)
 		updateGameState(conf.get(getName()))
 	}
+	statusBar(gameState)
 }
 
 const buy = (buyer, object, count = 1) => {
@@ -107,15 +124,8 @@ const sell = (seller, object, count = 1) => {
 
 const holdings = () => {
 	const table = new Table()
-	const allCompanies = []
+	const companies = getAllCompanies()
 
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			allCompanies.push(company)
-		})
-	})
-
-	const companies = Array.from(new Set(allCompanies))
 	const headerRow = ["Player", "Cash"].concat(companies)
 	table.push(headerRow)
 
@@ -162,23 +172,31 @@ const value = (company, value) => {
 }
 
 const values = () => {
-	let values = ""
+	const table = new Table()
+	const companies = getAllCompanies()
+	const headerRow = ["Player", "Cash"].concat(companies).concat(["Total"])
+	table.push(headerRow)
+
 	Object.keys(gameState.sharesOwned).forEach(owner => {
-		values += `${owner}:\n`
 		if (!gameState.cash[owner]) gameState.cash[owner] = 0
+		let row = [owner, gameState.cash[owner]]
 		let money = gameState.cash[owner]
-		values += `\tCASH: $${gameState.cash[owner]}`
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+		companies.forEach(company => {
 			let companyValue =
 				gameState.sharesOwned[owner][company] * gameState.values[company]
 			if (companyValue > 0) {
 				money += parseInt(companyValue)
-				values += `\t${company}: ${companyValue}`
+				row.push(companyValue)
+			} else {
+				row.push("0")
 			}
 		})
-		values += `\n\t	TOTAL: $${money}\n\n`
+		row.push(money)
+		table.push(row)
 	})
-	term(values)
+
+	term(table)
+	term("\n")
 }
 
 const resetGameState = () => {
@@ -239,33 +257,6 @@ const newGame = gameName => {
 	}
 }
 
-const showStatus = () => {
-	term.saveCursor()
-	term.eraseLineAfter()
-	term.moveTo(1, 1)
-	term.bgYellow()
-	term.black()
-	term(new Array(term.width + 1).join(" "))
-	term.moveTo(1, 1)
-	term("18SH")
-
-	let values = ""
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let money = gameState.cash[owner]
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			let companyValue =
-				gameState.sharesOwned[owner][company] * gameState.values[company]
-			if (companyValue > 0) {
-				money += parseInt(companyValue)
-			}
-		})
-		values += `\t${owner} $${money}`
-	})
-	term(values)
-
-	term.restoreCursor()
-}
 const perform = command => {
 	const action = parser(command)
 
@@ -322,7 +313,7 @@ const perform = command => {
 		let normalizedCommand = `${action.subject} ${action.verb} ${action.object}`
 		if (action.quantity) normalizedCommand += ` ${action.quantity}`
 		addCommandToHistory(normalizedCommand)
-		showStatus()
+		statusBar(gameState)
 	}
 }
 
@@ -332,6 +323,5 @@ module.exports = {
 	getCommandHistory,
 	undo,
 	initialize,
-	perform,
-	showStatus
+	perform
 }
