@@ -5,6 +5,9 @@ game scores in 18xx games. Spreadsheets are fine, especially if they're well
 designed with formulas to avoid entering the same data twice, but I wanted to
 try how an interactive shell would work.
 
+18SH follows semantic versioning; the biggest catch is that save file
+compatibility is only guaranteed within major versions.
+
 ## Usage
 
 Run 18SH with Node:
