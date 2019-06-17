@@ -12,6 +12,7 @@
   "author": "Mikko Saari",
   "license": "ISC",
   "dependencies": {
+    "cli-table": "^0.3.1",
     "configstore": "^5.0.0",
     "inquirer": "^6.3.1",
     "terminal-kit": "^1.28.1"

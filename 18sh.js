@@ -32,12 +32,13 @@ const commandPrompt = () => {
 				case "ex":
 				case "exi":
 				case "exit":
-					term("Exit!\n")
+					term("Bye!\n")
+					/* eslint-disable no-process-exit */
 					process.exit()
 					break
 				default:
 					if (gameState.getName()) {
-						gameState.parse(input)
+						gameState.perform(input)
 					} else {
 						term("^rNo active game!\n")
 					}
@@ -47,5 +48,8 @@ const commandPrompt = () => {
 	)
 }
 
+term.fullscreen()
+term.nextLine()
 gameState.initialize()
+gameState.showStatus()
 commandPrompt()

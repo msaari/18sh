@@ -4,6 +4,7 @@ const Configstore = require("configstore")
 const term = require("terminal-kit").terminal
 const nameGenerator = require("./generateName.js")
 const parser = require("./parser.js")
+const Table = require("cli-table")
 
 const conf = new Configstore("18sh")
 
@@ -15,7 +16,7 @@ const gameState = {
 	undid: ""
 }
 
-var silentMode = false
+var updateMode = false
 
 const setName = name => {
 	gameState.gameName = name
@@ -62,16 +63,13 @@ const initialize = () => {
 }
 
 const buy = (buyer, object, count = 1) => {
-	object = object.toUpperCase()
-	buyer = buyer.toUpperCase()
-
 	if (!gameState.sharesOwned[buyer]) gameState.sharesOwned[buyer] = []
 	if (!gameState.sharesOwned[buyer][object])
 		gameState.sharesOwned[buyer][object] = 0
 
 	gameState.sharesOwned[buyer][object] += parseInt(count)
 
-	if (!silentMode) {
+	if (!updateMode) {
 		term(
 			`${buyer} buys ${object} and now has ${
 				gameState.sharesOwned[buyer][object]
@@ -81,15 +79,12 @@ const buy = (buyer, object, count = 1) => {
 }
 
 const sell = (seller, object, count = 1) => {
-	object = object.toUpperCase()
-	seller = seller.toUpperCase()
-
 	if (!gameState.sharesOwned[seller]) gameState.sharesOwned[seller] = []
 	if (!gameState.sharesOwned[seller][object])
 		gameState.sharesOwned[seller][object] = 0
 
 	if (gameState.sharesOwned[seller][object] < count) {
-		if (!silentMode) {
+		if (!updateMode) {
 			term(
 				`${seller} only has ${
 					gameState.sharesOwned[seller][object]
@@ -101,7 +96,7 @@ const sell = (seller, object, count = 1) => {
 
 	gameState.sharesOwned[seller][object] -= parseInt(count)
 
-	if (!silentMode) {
+	if (!updateMode) {
 		term(
 			`${seller} sells ${object} and now has ${
 				gameState.sharesOwned[seller][object]
@@ -111,30 +106,44 @@ const sell = (seller, object, count = 1) => {
 }
 
 const holdings = () => {
-	let holdings = ""
+	const table = new Table()
+	const allCompanies = []
+
 	Object.keys(gameState.sharesOwned).forEach(owner => {
-		holdings += `${owner}:`
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		holdings += `\tCASH: $${gameState.cash[owner]}`
 		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+			allCompanies.push(company)
+		})
+	})
+
+	const companies = Array.from(new Set(allCompanies))
+	const headerRow = ["Player", "Cash"].concat(companies)
+	table.push(headerRow)
+
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		if (!gameState.cash[owner]) gameState.cash[owner] = 0
+		let row = [owner, gameState.cash[owner]]
+		companies.forEach(company => {
 			if (gameState.sharesOwned[owner][company] > 0) {
-				holdings += `\t${company}: ${gameState.sharesOwned[owner][company]}`
+				row.push(gameState.sharesOwned[owner][company])
+			} else {
+				row.push("0")
 			}
 		})
-		holdings += "\n"
+		table.push(row)
 	})
-	term(holdings)
+
+	term(table)
+	term("\n")
 }
 
 const dividend = (payingCompany, value) => {
-	payingCompany = payingCompany.toUpperCase()
 	Object.keys(gameState.sharesOwned).forEach(owner => {
 		Object.keys(gameState.sharesOwned[owner]).forEach(ownedCompany => {
 			if (payingCompany !== ownedCompany) return
 			const moneyEarned = gameState.sharesOwned[owner][payingCompany] * value
 			if (isNaN(gameState.cash[owner])) gameState.cash[owner] = 0
 			gameState.cash[owner] += parseInt(moneyEarned)
-			if (!silentMode) {
+			if (!updateMode) {
 				term(
 					`${payingCompany} pays ${owner} $${moneyEarned} for ${
 						gameState.sharesOwned[owner][payingCompany]
@@ -146,10 +155,9 @@ const dividend = (payingCompany, value) => {
 }
 
 const value = (company, value) => {
-	company = company.toUpperCase()
 	gameState.values[company] = value
-	if (!silentMode) {
-		term(`${company} value set to ${value}.`)
+	if (!updateMode) {
+		term(`${company} value set to ^y${value}^\n`)
 	}
 }
 
@@ -181,11 +189,11 @@ const resetGameState = () => {
 
 const updateGameState = commandHistory => {
 	resetGameState()
-	silentMode = true
+	updateMode = true
 	if (commandHistory) {
-		commandHistory.map(command => parser.parse(command))
+		commandHistory.map(command => perform(command))
 	}
-	silentMode = false
+	updateMode = false
 }
 
 const open = name => {
@@ -231,123 +239,90 @@ const newGame = gameName => {
 	}
 }
 
-const parse = command => {
-	const parts = command.split(" ")
+const showStatus = () => {
+	term.saveCursor()
+	term.eraseLineAfter()
+	term.moveTo(1, 1)
+	term.bgYellow()
+	term.black()
+	term(new Array(term.width + 1).join(" "))
+	term.moveTo(1, 1)
+	term("18SH")
+
+	let values = ""
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		if (!gameState.cash[owner]) gameState.cash[owner] = 0
+		let money = gameState.cash[owner]
+		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+			let companyValue =
+				gameState.sharesOwned[owner][company] * gameState.values[company]
+			if (companyValue > 0) {
+				money += parseInt(companyValue)
+			}
+		})
+		values += `\t${owner} $${money}`
+	})
+	term(values)
+
+	term.restoreCursor()
+}
+const perform = command => {
+	const action = parser(command)
+
 	var addToHistory = false
-	if (parts.length == 1) {
-		switch (parts[0]) {
-			case "h":
-			case "ho":
-			case "hol":
-			case "hold":
-			case "holdi":
-			case "holdin":
-			case "holding":
-			case "holdings":
-				holdings()
-				addToHistory = false
-				break
-			case "v":
-			case "va":
-			case "val":
-			case "valu":
-			case "value":
-			case "values":
-				values()
-				addToHistory = false
-				break
-			case "l":
-			case "li":
-			case "lis":
-			case "list":
-				listGames()
-				addToHistory = false
-				break
-			default:
-				term("^rUnrecognized command!^\n")
-				addToHistory = false
-		}
-	}
-	if (parts.length == 2) {
-		let verb = parts[0]
-		let object = parts[1]
-		switch (verb) {
-			case "o":
-			case "op":
-			case "ope":
-			case "open":
-				open(object)
-				addToHistory = false
-				break
-			case "delete":
-				deleteGame(object)
-				addToHistory = false
-				break
-			case "start":
-				newGame(object)
-				addToHistory = false
-				break
-			default:
-				term("^rUnrecognized command!^\n")
-				addToHistory = false
-		}
-	}
-	if (parts.length > 2) {
-		let subject = parts[0]
-		let verb = parts[1]
-		let object = parts[2]
-		let count = parts[3] ? parts[3] : 1
-		if (isNaN(parseInt(count)) && !isNaN(parseInt(object))) {
-			let temp = count
-			count = object
-			object = temp
-		}
-		switch (verb) {
-			case "b":
-			case "bu":
-			case "buy":
-			case "buys":
-				buy(subject, object, count)
-				addToHistory = true
-				break
-			case "s":
-			case "se":
-			case "sell":
-			case "sells":
-				sell(subject, object, count)
-				addToHistory = true
-				break
-			case "d":
-			case "di":
-			case "div":
-			case "divi":
-			case "divid":
-			case "divide":
-			case "dividen":
-			case "dividend":
-			case "p":
-			case "pa":
-			case "pay":
-			case "pays":
-				dividend(subject, object)
-				addToHistory = true
-				break
-			case "v":
-			case "va":
-			case "val":
-			case "valu":
-			case "value":
-				value(subject, object)
-				addToHistory = true
-				break
-			default:
-				term("^rUnrecognized command!^\n")
-				addToHistory = false
-		}
+	switch (action.verb) {
+		case "holdings":
+			holdings()
+			addToHistory = false
+			break
+		case "values":
+			values()
+			addToHistory = false
+			break
+		case "listGames":
+			listGames()
+			addToHistory = false
+			break
+		case "open":
+			open(action.object)
+			addToHistory = false
+			break
+		case "delete":
+			deleteGame(action.object)
+			addToHistory = false
+			break
+		case "start":
+			newGame(action.object)
+			addToHistory = false
+			break
+		case "buy":
+			buy(action.subject, action.object, action.quantity)
+			addToHistory = true
+			break
+		case "sell":
+			sell(action.subject, action.object, action.quantity)
+			addToHistory = true
+			break
+		case "dividend":
+			dividend(action.subject, action.object)
+			addToHistory = true
+			break
+		case "value":
+			value(action.subject, action.object)
+			addToHistory = true
+			break
+		default:
+			term("^rUnrecognized command!^\n")
+			addToHistory = false
 	}
 
+	if (updateMode) addToHistory = false
+
 	if (addToHistory) {
-		addCommandToHistory(command)
+		let normalizedCommand = `${action.subject} ${action.verb} ${action.object}`
+		if (action.quantity) normalizedCommand += ` ${action.quantity}`
+		addCommandToHistory(normalizedCommand)
+		showStatus()
 	}
 }
 
@@ -357,5 +332,6 @@ module.exports = {
 	getCommandHistory,
 	undo,
 	initialize,
-	parse
+	perform,
+	showStatus
 }
