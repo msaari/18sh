@@ -2,9 +2,9 @@
 
 const Configstore = require("configstore")
 const term = require("terminal-kit").terminal
-const nameGenerator = require("./generateName.js")
-const parser = require("./parser.js")
-const Table = require("cli-table")
+const nameGenerator = require("./generateName")
+const parser = require("./parser")
+const tables = require("./tables")
 const statusBar = require("./statusBar")
 
 const conf = new Configstore("18sh")
@@ -39,18 +39,6 @@ const addCommandToHistory = command => {
 	var commandHistory = getCommandHistory()
 	commandHistory.push(command)
 	saveCommandHistory(commandHistory)
-}
-
-const getAllCompanies = () => {
-	const allCompanies = []
-
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			allCompanies.push(company)
-		})
-	})
-
-	return Array.from(new Set(allCompanies))
 }
 
 const undo = () => {
@@ -123,27 +111,11 @@ const sell = (seller, object, count = 1) => {
 }
 
 const holdings = () => {
-	const table = new Table()
-	const companies = getAllCompanies()
+	term(tables.holdingsTable(gameState) + "\n")
+}
 
-	const headerRow = ["Player", "Cash"].concat(companies)
-	table.push(headerRow)
-
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let row = [owner, gameState.cash[owner]]
-		companies.forEach(company => {
-			if (gameState.sharesOwned[owner][company] > 0) {
-				row.push(gameState.sharesOwned[owner][company])
-			} else {
-				row.push("0")
-			}
-		})
-		table.push(row)
-	})
-
-	term(table)
-	term("\n")
+const values = () => {
+	term(tables.valuesTable(gameState) + "\n")
 }
 
 const dividend = (payingCompany, value) => {
@@ -155,7 +127,7 @@ const dividend = (payingCompany, value) => {
 			gameState.cash[owner] += parseInt(moneyEarned)
 			if (!updateMode) {
 				term(
-					`${payingCompany} pays ${owner} $${moneyEarned} for ${
+					`${payingCompany} pays ${owner} ^y$${moneyEarned}^ for ${
 						gameState.sharesOwned[owner][payingCompany]
 					} shares.\n`
 				)
@@ -169,34 +141,6 @@ const value = (company, value) => {
 	if (!updateMode) {
 		term(`${company} value set to ^y${value}^\n`)
 	}
-}
-
-const values = () => {
-	const table = new Table()
-	const companies = getAllCompanies()
-	const headerRow = ["Player", "Cash"].concat(companies).concat(["Total"])
-	table.push(headerRow)
-
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let row = [owner, gameState.cash[owner]]
-		let money = gameState.cash[owner]
-		companies.forEach(company => {
-			let companyValue =
-				gameState.sharesOwned[owner][company] * gameState.values[company]
-			if (companyValue > 0) {
-				money += parseInt(companyValue)
-				row.push(companyValue)
-			} else {
-				row.push("0")
-			}
-		})
-		row.push(money)
-		table.push(row)
-	})
-
-	term(table)
-	term("\n")
 }
 
 const resetGameState = () => {
