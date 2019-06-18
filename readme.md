@@ -8,6 +8,14 @@ try how an interactive shell would work.
 18SH follows semantic versioning; the biggest catch is that save file
 compatibility is only guaranteed within major versions.
 
+## Installing
+
+Clone from Github or download the files. Then install the Node modules with
+
+	npm install
+
+and you're ready to go. 18SH requires [Node.js](https://nodejs.org/en/download/).
+
 ## Usage
 
 Run 18SH with Node:
@@ -126,7 +134,7 @@ every command in the local configstore (`~/.config/configstore/18sh.json`).
 
 ## License
 
-Copyright 2019 Mikko Saari mikko@mikkosaari.fi
+Copyright 2019 [Mikko Saari](https://github.com/msaari/) mikko@mikkosaari.fi
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
