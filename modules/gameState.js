@@ -4,6 +4,7 @@ const Configstore = require("configstore")
 const term = require("terminal-kit").terminal
 const nameGenerator = require("./generateName")
 const parser = require("./parser")
+const commandHistory = require("./commandHistory")
 const tables = require("./tables")
 const statusBar = require("./statusBar")
 
@@ -25,27 +26,13 @@ const setName = name => {
 
 const getName = () => gameState.gameName
 
-const getCommandHistory = () => {
-	var commandHistory = conf.get(gameState.gameName)
-	if (!commandHistory) commandHistory = new Array()
-	return commandHistory
-}
-
-const saveCommandHistory = commandHistory => {
-	conf.set(gameState.gameName, commandHistory)
-}
-
-const addCommandToHistory = command => {
-	var commandHistory = getCommandHistory()
-	commandHistory.push(command)
-	saveCommandHistory(commandHistory)
-}
+const getCommandHistory = () => commandHistory.getCommandHistory(gameState)
 
 const undo = () => {
-	var commandHistory = getCommandHistory()
-	var undid = commandHistory.pop()
-	updateGameState(commandHistory)
-	saveCommandHistory(commandHistory)
+	var commandHistoryArray = commandHistory.getCommandHistory(gameState)
+	var undid = commandHistoryArray.pop()
+	updateGameState(commandHistoryArray)
+	commandHistory.saveCommandHistory(commandHistoryArray, gameState)
 	return undid
 }
 
@@ -119,6 +106,12 @@ const values = () => {
 }
 
 const dividend = (payingCompany, value) => {
+	if (value.substring(0, 2).toLowerCase() === "pr") {
+		value = commandHistory.getPreviousDividend(payingCompany, gameState)
+	}
+	if (isNaN(value)) {
+		value = 0
+	}
 	Object.keys(gameState.sharesOwned).forEach(owner => {
 		Object.keys(gameState.sharesOwned[owner]).forEach(ownedCompany => {
 			if (payingCompany !== ownedCompany) return
@@ -149,11 +142,11 @@ const resetGameState = () => {
 	gameState.values = []
 }
 
-const updateGameState = commandHistory => {
+const updateGameState = commandHistoryArray => {
 	resetGameState()
 	updateMode = true
-	if (commandHistory) {
-		commandHistory.map(command => perform(command))
+	if (commandHistoryArray) {
+		commandHistoryArray.map(command => perform(command))
 	}
 	updateMode = false
 }
@@ -256,7 +249,7 @@ const perform = command => {
 	if (addToHistory) {
 		let normalizedCommand = `${action.subject} ${action.verb} ${action.object}`
 		if (action.quantity) normalizedCommand += ` ${action.quantity}`
-		addCommandToHistory(normalizedCommand)
+		commandHistory.addCommandToHistory(normalizedCommand, gameState)
 		statusBar(gameState)
 	}
 }

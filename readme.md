@@ -61,7 +61,7 @@ abbreviate the command and switch `<company>` and `<count>` if you wish.
 If you try to sell more than you have, 18SH will sell to zero.
 
 ### DIVIDENDS
-	<company> dividends <number>
+	<company> dividends <number|previous>
 
 This command has the company distribute `<number>` as a dividend. Use the
 per-share value, not the total dividend: if there are ten shares as usual and
@@ -77,6 +77,13 @@ and it also has an alias, `pays`. These are all identical to the command above:
 	GER pay 20
 	GER pa 20
 	GER p 20
+
+You can also use `previous` to re-distribute the previous dividend. This can be
+shortened:
+
+	GER dividend previous
+	GER pays prev
+	GER d pr
 
 ### VALUE
 	<company> value <number>
