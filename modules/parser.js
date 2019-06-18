@@ -100,7 +100,7 @@ const parse = command => {
 		let quantity = parts[3] ? parts[3] : 1
 		if (isNaN(parseInt(quantity)) && !isNaN(parseInt(object))) {
 			let temp = quantity
-			quantity = object
+			quantity = parseInt(object)
 			object = temp.toUpperCase()
 		}
 		switch (verb) {
@@ -151,6 +151,7 @@ const parse = command => {
 			case "val":
 			case "valu":
 			case "value":
+				object = parseInt(object)
 				result = {
 					verb: "value",
 					object,

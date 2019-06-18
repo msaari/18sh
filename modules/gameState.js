@@ -106,7 +106,7 @@ const values = () => {
 }
 
 const dividend = (payingCompany, value) => {
-	if (value.substring(0, 2).toLowerCase() === "pr") {
+	if (value.substring(0, 2) === "PR") {
 		value = commandHistory.getPreviousDividend(payingCompany, gameState)
 	}
 	if (isNaN(value)) {
