@@ -9,6 +9,7 @@ const conf = new Configstore(configstoreName)
 const getCommandHistory = gameState => {
 	var commandHistory = conf.get(gameState.gameName)
 	if (!commandHistory) commandHistory = new Array()
+	if (!commandHistory.length) commandHistory = new Array()
 	return commandHistory
 }
 
@@ -27,7 +28,8 @@ const getPreviousDividend = (company, gameState) => {
 	const commandStart = `${company} dividend `
 	let dividend = commandHistory.reduce((accumulator, command) => {
 		if (command.substr(0, commandStart.length) === commandStart) {
-			accumulator = command.replace(commandStart, "")
+			let dividend = command.replace(commandStart, "")
+			if (dividend !== "PREV") accumulator = dividend
 		}
 		return accumulator
 	}, 0)

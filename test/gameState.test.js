@@ -25,6 +25,7 @@ describe("GameState", () => {
 		})
 	})
 
+	console.log("gameState logging", gameState.gameName)
 	describe("changeSharesOwned", () => {
 		const actor = "MIKKO"
 		const company = "LSWR"
@@ -87,7 +88,7 @@ describe("GameState", () => {
 			const company = "LNWR"
 			const value = 134
 			let feedback = gameState.setValue(company, value)
-			expect(feedback).to.include.string(`${company} value set to ^y${value}`)
+			expect(feedback).to.have.string(`${company} value set to ^y${value}`)
 			expect(gameState.getValue(company)).to.equal(value)
 			expect(gameState.getValue()[company]).to.equal(value)
 		})
@@ -96,7 +97,7 @@ describe("GameState", () => {
 			const company = "LNWR"
 			const value = "word"
 			let feedback = gameState.setValue(company, value)
-			expect(feedback).to.include.string("Value is not a number")
+			expect(feedback).to.have.string("Value is not a number")
 		})
 	})
 
@@ -105,7 +106,7 @@ describe("GameState", () => {
 		const gameName2 = "rusty-trains"
 		it("should create a new game", () => {
 			let feedback = gameState.newGame(gameName1)
-			expect(feedback).to.include.string(
+			expect(feedback).to.have.string(
 				`Game ^y'${gameName1}'^ generated and active.`
 			)
 			expect(gameState.getName()).to.equal(gameName1)
@@ -116,7 +117,7 @@ describe("GameState", () => {
 
 		it("should not create a duplicate game", () => {
 			let feedback = gameState.newGame(gameName1)
-			expect(feedback).to.include.string(
+			expect(feedback).to.have.string(
 				`^rGame ^y'${gameName1}'^ already exists!`
 			)
 		})
@@ -126,20 +127,20 @@ describe("GameState", () => {
 			gameState.addToHistory("NOOA buys GER")
 
 			let feedback = gameState.listGames()
-			expect(feedback).to.include.string(gameName1)
-			expect(feedback).to.include.string(gameName2)
+			expect(feedback).to.have.string(gameName1)
+			expect(feedback).to.have.string(gameName2)
 		})
 
 		it("should open the correct game", () => {
 			let feedback = gameState.open(gameName1)
-			expect(feedback).to.include.string(`Opened game ^y'${gameName1}'^`)
+			expect(feedback).to.have.string(`Opened game ^y'${gameName1}'^`)
 			expect(gameState.getName()).to.equal(gameName1)
 		})
 
 		it("should not open a non-existing game", () => {
 			const notAGameName = "attractive-milkshake"
 			let feedback = gameState.open(notAGameName)
-			expect(feedback).to.include.string(
+			expect(feedback).to.have.string(
 				`Game ^y'${notAGameName}'^ doesn't exist.`
 			)
 		})
@@ -147,17 +148,68 @@ describe("GameState", () => {
 		it("should be able to delete a non-active game", () => {
 			gameState.open(gameName1)
 			let feedback = gameState.deleteGame(gameName2)
-			expect(feedback).to.include.string(`Deleted ^y'${gameName2}'^`)
+			expect(feedback).to.have.string(`Deleted ^y'${gameName2}'^`)
 		})
 
 		it("should be able to delete the active game", () => {
 			gameState.open(gameName1)
 			let feedback = gameState.deleteGame(gameName1)
-			expect(feedback).to.include.string(`Deleted ^y'${gameName1}'^`)
-			expect(feedback).to.include.string(
+			expect(feedback).to.have.string(`Deleted ^y'${gameName1}'^`)
+			expect(feedback).to.have.string(
 				`Deleted the active game, no game active at the moment.`
 			)
 			expect(gameState.getName()).to.be.null
+		})
+
+		it("should not delete a non-existing game", () => {
+			const notAGameName = "attractive-milkshake"
+			let feedback = gameState.deleteGame(notAGameName)
+			expect(feedback).to.have.string(
+				`^rGame ^y'${notAGameName}'^r doesn't exist.`
+			)
+		})
+	})
+
+	describe("getHoldingsTable", () => {
+		it("should create a correct holdings table", () => {
+			conf.clear()
+			gameState.resetGameState()
+
+			gameState.changeSharesOwned("MIKKO", "CR", 4)
+			gameState.addToHistory("MIKKO buys CR 4")
+			gameState.changeSharesOwned("NOOA", "CR", 2)
+			gameState.addToHistory("NOOA buys CR 2")
+
+			gameState.payDividends("CR", 10)
+			gameState.addToHistory("CR dividend 10")
+
+			const table = gameState.getHoldingsTable()
+			expect(table[0]).to.deep.equal(["Player", "Cash", "CR"])
+			expect(table[1]).to.deep.equal(["MIKKO", 40, 4])
+			expect(table[2]).to.deep.equal(["NOOA", 20, 2])
+		})
+	})
+
+	describe("getValuesTable", () => {
+		it("should create a correct values table", () => {
+			conf.clear()
+			gameState.resetGameState()
+
+			gameState.changeSharesOwned("MIKKO", "CR", 4)
+			gameState.addToHistory("MIKKO buys CR 4")
+			gameState.changeSharesOwned("NOOA", "CR", 2)
+			gameState.addToHistory("NOOA buys CR 2")
+
+			gameState.payDividends("CR", 10)
+			gameState.addToHistory("CR dividend 10")
+
+			gameState.setValue("CR", 100)
+			gameState.addToHistory("CR value 100")
+
+			const table = gameState.getValuesTable()
+			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "Total"])
+			expect(table[1]).to.deep.equal(["MIKKO", 40, 400, 440])
+			expect(table[2]).to.deep.equal(["NOOA", 20, 200, 220])
 		})
 	})
 })

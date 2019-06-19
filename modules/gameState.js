@@ -26,7 +26,10 @@ const setName = name => {
 
 const getName = () => gameState.gameName
 
-const getCommandHistory = () => commandHistory.getCommandHistory(gameState)
+const getCommandHistory = () => {
+	const history = commandHistory.getCommandHistory(gameState)
+	return history
+}
 
 const addToHistory = command => {
 	commandHistory.addCommandToHistory(command, gameState)
@@ -209,7 +212,7 @@ const deleteGame = name => {
 			feedback += `Deleted the active game, no game active at the moment.\n`
 		}
 	} else {
-		feedback = `^rGame ^y'${name}'^r doesn't exist.\n`
+		feedback = `^rGame ^y'${name}'^r doesn't exist.\n`
 	}
 	return feedback
 }
@@ -280,5 +283,6 @@ module.exports = {
 	updateStatusBar,
 	open,
 	getHoldingsTable,
-	getValuesTable
+	getValuesTable,
+	resetGameState
 }

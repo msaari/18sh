@@ -18,7 +18,7 @@ var gameStateObject = Object()
  * @returns {void}
  */
 const perform = (command, gameState, silent = false) => {
-	if (silent) updateMode = true
+	updateMode = silent
 	gameStateObject = gameState
 	const action = parser(command)
 
@@ -104,7 +104,6 @@ const values = () => {
 
 const dividend = (payingCompany, value) => {
 	const feedback = gameStateObject.payDividends(payingCompany, value)
-
 	if (!updateMode) {
 		term(feedback)
 	}
