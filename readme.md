@@ -10,7 +10,10 @@ compatibility is only guaranteed within major versions.
 
 ## Installing
 
-Clone from Github or download the files. Then install the Node modules with
+Clone from Github or download the files. The GitHub `master` is the current
+state of development and not always stable. For stable releases, get the
+[tagged release packages](https://github.com/msaari/18sh/releases). Then
+install the Node modules with
 
 	npm install
 
@@ -138,6 +141,10 @@ undone.
 
 Alias `exit`. Exits the 18SH shell. The game state is automatically saved after
 every command in the local configstore (`~/.config/configstore/18sh.json`).
+
+## Changelog
+
+See changelog.md in the repo.
 
 ## License
 
