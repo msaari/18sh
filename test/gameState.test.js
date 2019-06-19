@@ -61,4 +61,40 @@ describe("GameState", () => {
 			)
 		})
 	})
+
+	describe("dividend", () => {
+		it("should pay correct dividends", () => {
+			gameState.changeSharesOwned("MIKKO", "CR", 4)
+			gameState.changeSharesOwned("NOOA", "CR", 2)
+
+			gameState.payDividends("CR", 10)
+			gameState.addToHistory("CR dividend 10")
+
+			expect(gameState.getCash("MIKKO")).to.equal(40)
+			expect(gameState.getCash("NOOA")).to.equal(20)
+		})
+
+		it("should repay previous dividends correctly", () => {
+			gameState.payDividends("CR", "PREV")
+
+			expect(gameState.getCash("MIKKO")).to.equal(80)
+			expect(gameState.getCash("NOOA")).to.equal(40)
+		})
+	})
+
+	describe("setValue", () => {
+		it("should set the value correctly", () => {
+			const company = "LNWR"
+			const value = 134
+			let feedback = gameState.setValue(company, value)
+			expect(feedback).to.include.string(`${company} value set to ^y${value}`)
+		})
+
+		it("should handle non-numeric values correctly", () => {
+			const company = "LNWR"
+			const value = "word"
+			let feedback = gameState.setValue(company, value)
+			expect(feedback).to.include.string("Value is not a number")
+		})
+	})
 })
