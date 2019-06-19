@@ -2,31 +2,17 @@
 
 const Table = require("cli-table")
 
-const getAllCompanies = gameState => {
-	const allCompanies = []
-
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			allCompanies.push(company)
-		})
-	})
-
-	return Array.from(new Set(allCompanies))
-}
-
-const holdingsTable = gameState => {
+const holdingsTable = (companies, sharesOwned, cash) => {
 	const table = new Table()
-	const companies = getAllCompanies(gameState)
-
 	const headerRow = ["Player", "Cash"].concat(companies)
 	table.push(headerRow)
 
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let row = [owner, gameState.cash[owner]]
+	Object.keys(sharesOwned).forEach(owner => {
+		if (!cash[owner]) cash[owner] = 0
+		let row = [owner, cash[owner]]
 		companies.forEach(company => {
-			if (gameState.sharesOwned[owner][company] > 0) {
-				row.push(gameState.sharesOwned[owner][company])
+			if (sharesOwned[owner][company] > 0) {
+				row.push(sharesOwned[owner][company])
 			} else {
 				row.push("0")
 			}
@@ -36,19 +22,17 @@ const holdingsTable = gameState => {
 	return table
 }
 
-const valuesTable = gameState => {
+const valuesTable = (companies, sharesOwned, values, cash) => {
 	const table = new Table()
-	const companies = getAllCompanies(gameState)
 	const headerRow = ["Player", "Cash"].concat(companies).concat(["Total"])
 	table.push(headerRow)
 
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let row = [owner, gameState.cash[owner]]
-		let money = gameState.cash[owner]
+	Object.keys(sharesOwned).forEach(owner => {
+		if (!cash[owner]) cash[owner] = 0
+		let row = [owner, cash[owner]]
+		let money = cash[owner]
 		companies.forEach(company => {
-			let companyValue =
-				gameState.sharesOwned[owner][company] * gameState.values[company]
+			let companyValue = sharesOwned[owner][company] * values[company]
 			if (companyValue > 0) {
 				money += parseInt(companyValue)
 				row.push(companyValue)
