@@ -8,7 +8,9 @@ const commandHistory = require("./commandHistory")
 const tables = require("./tables")
 const statusBar = require("./statusBar")
 
-const conf = new Configstore("18sh")
+/* eslint-disable no-process-env */
+const configstoreName = process.env.NODE_ENV === "test" ? "18sh-test" : "18sh"
+const conf = new Configstore(configstoreName)
 
 const gameState = {
 	gameName: "",
@@ -36,64 +38,75 @@ const undo = () => {
 	return undid
 }
 
-const initialize = () => {
-	term.fullscreen()
-	term.nextLine()
-
+const createOrLoadGame = () => {
 	let currentGameName = conf.get("currentGameName")
+	let feedback = ""
 	if (!currentGameName) {
 		currentGameName = nameGenerator.generateName()
 		setName(currentGameName)
-		term(`Your game name is ^y'${getName()}'^\n`)
+		feedback = `Your game name is ^y'${getName()}'^\n`
 		conf.set("currentGameName", currentGameName)
 	} else if (currentGameName) {
-		term(`Continuing game ^y'${currentGameName}'^\n`)
+		feedback = `Continuing game ^y'${currentGameName}'^\n`
 		setName(currentGameName)
 		updateGameState(conf.get(getName()))
 	}
+	return feedback
+}
+
+const initialize = () => {
+	term.fullscreen()
+	term.nextLine()
+	term(createOrLoadGame())
 	statusBar(gameState)
 }
 
-const buy = (buyer, object, count = 1) => {
-	if (!gameState.sharesOwned[buyer]) gameState.sharesOwned[buyer] = []
-	if (!gameState.sharesOwned[buyer][object])
-		gameState.sharesOwned[buyer][object] = 0
+const getSharesOwned = () => gameState.sharesOwned
 
-	gameState.sharesOwned[buyer][object] += parseInt(count)
+const setSharesOwned = sharesOwned => {
+	gameState.sharesOwned = sharesOwned
+}
 
-	if (!updateMode) {
-		term(
-			`${buyer} buys ${object} and now has ${
-				gameState.sharesOwned[buyer][object]
+const changeSharesOwned = (actor, company, quantity) => {
+	let feedback = ""
+	const sharesOwned = getSharesOwned()
+	if (!sharesOwned[actor]) sharesOwned[actor] = []
+	if (!sharesOwned[actor][company]) sharesOwned[actor][company] = 0
+
+	const quantityInt = parseInt(quantity)
+	if (quantityInt < 0 && Math.abs(quantityInt) > sharesOwned[actor][company]) {
+		feedback = `${actor} only has ${
+			sharesOwned[actor][company]
+		}, selling all.\n`
+		sharesOwned[actor][company] = 0
+	} else if (!isNaN(quantityInt)) {
+		sharesOwned[actor][company] += quantityInt
+		if (quantityInt > 0)
+			feedback = `${actor} buys ${company} and now has ${
+				sharesOwned[actor][company]
 			}.\n`
-		)
+		if (quantityInt < 0)
+			feedback = `${actor} sells ${company} and now has ${
+				sharesOwned[actor][company]
+			}.\n`
+	}
+
+	setSharesOwned(sharesOwned)
+	return feedback
+}
+
+const buy = (buyer, object, count = 1) => {
+	const feedback = changeSharesOwned(buyer, object, count)
+	if (!updateMode) {
+		term(feedback)
 	}
 }
 
 const sell = (seller, object, count = 1) => {
-	if (!gameState.sharesOwned[seller]) gameState.sharesOwned[seller] = []
-	if (!gameState.sharesOwned[seller][object])
-		gameState.sharesOwned[seller][object] = 0
-
-	if (gameState.sharesOwned[seller][object] < count) {
-		if (!updateMode) {
-			term(
-				`${seller} only has ${
-					gameState.sharesOwned[seller][object]
-				}, selling all.\n`
-			)
-		}
-		count = gameState.sharesOwned[seller][object]
-	}
-
-	gameState.sharesOwned[seller][object] -= parseInt(count)
-
+	count *= -1
+	const feedback = changeSharesOwned(seller, object, count)
 	if (!updateMode) {
-		term(
-			`${seller} sells ${object} and now has ${
-				gameState.sharesOwned[seller][object]
-			}.\n`
-		)
+		term(feedback)
 	}
 }
 
@@ -260,5 +273,8 @@ module.exports = {
 	getCommandHistory,
 	undo,
 	initialize,
-	perform
+	perform,
+	createOrLoadGame,
+	getSharesOwned,
+	changeSharesOwned
 }

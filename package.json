@@ -4,7 +4,8 @@
   "description": "An 18xx shell.",
   "main": "18sh.js",
   "scripts": {
-    "test": "mocha"
+    "test": "env NODE_ENV=test mocha",
+    "watch": "env NODE_ENV=test mocha --watch"
   },
   "keywords": [
     "18xx"
