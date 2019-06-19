@@ -206,7 +206,7 @@ const deleteGame = name => {
 		if (conf.get("currentGameName") === name) {
 			conf.delete("currentGameName")
 			gameState.gameName = null
-			feedback = `Deleted the active game, no game active at the moment.\n`
+			feedback += `Deleted the active game, no game active at the moment.\n`
 		}
 	} else {
 		feedback = `^rGame ^y'${name}'^r doesn't exist.\n`
