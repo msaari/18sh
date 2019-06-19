@@ -1,7 +1,10 @@
 "use strict"
 
 const Configstore = require("configstore")
-const conf = new Configstore("18sh")
+
+/* eslint-disable no-process-env */
+const configstoreName = process.env.NODE_ENV === "test" ? "18sh-test" : "18sh"
+const conf = new Configstore(configstoreName)
 
 const getCommandHistory = gameState => {
 	var commandHistory = conf.get(gameState.gameName)
