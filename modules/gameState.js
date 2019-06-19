@@ -3,10 +3,10 @@
 const Configstore = require("configstore")
 const term = require("terminal-kit").terminal
 const nameGenerator = require("./generateName")
-const parser = require("./parser")
 const commandHistory = require("./commandHistory")
-const tables = require("./tables")
 const statusBar = require("./statusBar")
+const perform = require("./perform")
+const tables = require("./tables")
 
 /* eslint-disable no-process-env */
 const configstoreName = process.env.NODE_ENV === "test" ? "18sh-test" : "18sh"
@@ -20,8 +20,6 @@ const gameState = {
 	undid: ""
 }
 
-var updateMode = false
-
 const setName = name => {
 	gameState.gameName = name
 }
@@ -29,6 +27,17 @@ const setName = name => {
 const getName = () => gameState.gameName
 
 const getCommandHistory = () => commandHistory.getCommandHistory(gameState)
+
+const addToHistory = command => {
+	commandHistory.addCommandToHistory(command, gameState)
+}
+
+const getCash = (player = null) => {
+	if (player) {
+		return gameState.cash[player]
+	}
+	return gameState.cash
+}
 
 const undo = () => {
 	var commandHistoryArray = commandHistory.getCommandHistory(gameState)
@@ -95,58 +104,46 @@ const changeSharesOwned = (actor, company, quantity) => {
 	return feedback
 }
 
-const buy = (buyer, object, count = 1) => {
-	const feedback = changeSharesOwned(buyer, object, count)
-	if (!updateMode) {
-		term(feedback)
-	}
+const changeCash = (player, sum) => {
+	if (isNaN(gameState.cash[player])) gameState.cash[player] = 0
+	gameState.cash[player] += parseInt(sum)
+	return gameState.cash[player]
 }
 
-const sell = (seller, object, count = 1) => {
-	count *= -1
-	const feedback = changeSharesOwned(seller, object, count)
-	if (!updateMode) {
-		term(feedback)
-	}
+const getCompanyOwners = company => {
+	const sharesOwned = getSharesOwned()
+	const owners = Object.keys(sharesOwned).reduce((accumulator, player) => {
+		const shares = Object.keys(sharesOwned[player]).reduce(
+			(companyShares, share) => {
+				if (share === company) companyShares += sharesOwned[player][share]
+				return companyShares
+			},
+			0
+		)
+		accumulator[player] = shares
+		return accumulator
+	}, [])
+	return owners
 }
 
-const holdings = () => {
-	term(tables.holdingsTable(gameState) + "\n")
-}
-
-const values = () => {
-	term(tables.valuesTable(gameState) + "\n")
-}
-
-const dividend = (payingCompany, value) => {
-	if (value.substring(0, 2) === "PR") {
+const payDividends = (payingCompany, value) => {
+	if (typeof value === "string" && value.substring(0, 2) === "PR") {
 		value = commandHistory.getPreviousDividend(payingCompany, gameState)
 	}
 	if (isNaN(value)) {
 		value = 0
 	}
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Object.keys(gameState.sharesOwned[owner]).forEach(ownedCompany => {
-			if (payingCompany !== ownedCompany) return
-			const moneyEarned = gameState.sharesOwned[owner][payingCompany] * value
-			if (isNaN(gameState.cash[owner])) gameState.cash[owner] = 0
-			gameState.cash[owner] += parseInt(moneyEarned)
-			if (!updateMode) {
-				term(
-					`${payingCompany} pays ${owner} ^y$${moneyEarned}^ for ${
-						gameState.sharesOwned[owner][payingCompany]
-					} shares.\n`
-				)
-			}
-		})
-	})
-}
 
-const value = (company, value) => {
-	gameState.values[company] = value
-	if (!updateMode) {
-		term(`${company} value set to ^y${value}^\n`)
-	}
+	let feedback = ""
+	const sharesOwned = getCompanyOwners(payingCompany)
+	Object.keys(sharesOwned).forEach(player => {
+		const moneyEarned = sharesOwned[player] * value
+		changeCash(player, moneyEarned)
+		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${
+			gameState.sharesOwned[player][payingCompany]
+		} shares.\n`
+	})
+	return feedback
 }
 
 const resetGameState = () => {
@@ -157,114 +154,110 @@ const resetGameState = () => {
 
 const updateGameState = commandHistoryArray => {
 	resetGameState()
-	updateMode = true
+	const silent = true
 	if (commandHistoryArray) {
-		commandHistoryArray.map(command => perform(command))
+		commandHistoryArray.map(command => perform(command, module.exports, silent))
 	}
-	updateMode = false
+}
+
+const setValue = (company, value) => {
+	if (isNaN(value)) {
+		return `^rValue is not a number!^\n`
+	}
+	gameState.values[company] = value
+	return `${company} value set to ^y${value}^\n`
+}
+
+const getValue = (company = null) => {
+	if (company) {
+		if (!gameState.values[company]) gameState.values[company] = 0
+		return gameState.values[company]
+	}
+	return gameState.values
 }
 
 const open = name => {
+	let feedback = ""
 	if (conf.has(name)) {
 		gameState.gameName = name
 		updateGameState(conf.get(name))
-		term(`Opened game ^y'${name}'^\n`)
+		feedback = `Opened game ^y'${name}'^\n`
 		conf.set("currentGameName", name)
 	} else {
-		term(`Game ^y'${name}'^ doesn't exist.\n`)
+		feedback = `Game ^y'${name}'^ doesn't exist.\n`
 	}
+	return feedback
 }
 
 const listGames = () => {
+	let feedback = ""
 	Object.keys(conf.all).forEach(key => {
 		if (key === "currentGameName") return
-		term(`${key}\n`)
+		feedback += `${key}\n`
 	})
+	return feedback
 }
 
 const deleteGame = name => {
+	let feedback = ""
 	if (conf.has(name)) {
 		conf.delete(name)
-		term(`Deleted ^y'${name}'^\n`)
+		feedback = `Deleted ^y'${name}'^\n`
 		if (conf.get("currentGameName") === name) {
 			conf.delete("currentGameName")
 			gameState.gameName = null
-			term(`Deleted the active game, no game active at the moment.\n`)
+			feedback = `Deleted the active game, no game active at the moment.\n`
 		}
 	} else {
-		term(`Game ^y'${name}'^ doesn't exist.\n`)
+		feedback = `^rGame ^y'${name}'^r doesn't exist.\n`
 	}
+	return feedback
 }
 
 const newGame = gameName => {
+	let feedback = ""
 	if (conf.has(gameName)) {
-		term(`^rGame ^y'${gameName}'^ already exists!\n`)
+		feedback = `^rGame ^y'${gameName}'^ already exists!\n`
 	} else {
 		resetGameState()
 		gameState.gameName = gameName
 		conf.set("currentGameName", gameName)
-		term(`Game ^y'${gameName}'^ generated and active.\n`)
+		feedback = `Game ^y'${gameName}'^ generated and active.\n`
 	}
+	return feedback
 }
 
-const perform = command => {
-	const action = parser(command)
+const updateStatusBar = () => {
+	statusBar(gameState)
+}
 
-	var addToHistory = false
-	switch (action.verb) {
-		case "holdings":
-			holdings()
-			addToHistory = false
-			break
-		case "values":
-			values()
-			addToHistory = false
-			break
-		case "listGames":
-			listGames()
-			addToHistory = false
-			break
-		case "open":
-			open(action.object)
-			addToHistory = false
-			break
-		case "delete":
-			deleteGame(action.object)
-			addToHistory = false
-			break
-		case "start":
-			newGame(action.object)
-			addToHistory = false
-			break
-		case "buy":
-			buy(action.subject, action.object, action.quantity)
-			addToHistory = true
-			break
-		case "sell":
-			sell(action.subject, action.object, action.quantity)
-			addToHistory = true
-			break
-		case "dividend":
-			dividend(action.subject, action.object)
-			addToHistory = true
-			break
-		case "value":
-			value(action.subject, action.object)
-			addToHistory = true
-			break
-		default:
-			term("^rUnrecognized command!^\n")
-			addToHistory = false
-	}
+const getAllCompanies = () => {
+	const allCompanies = []
 
-	if (updateMode) addToHistory = false
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
+			allCompanies.push(company)
+		})
+	})
 
-	if (addToHistory) {
-		let normalizedCommand = `${action.subject} ${action.verb} ${action.object}`
-		if (action.quantity) normalizedCommand += ` ${action.quantity}`
-		commandHistory.addCommandToHistory(normalizedCommand, gameState)
-		statusBar(gameState)
-	}
+	return Array.from(new Set(allCompanies))
+}
+
+const getHoldingsTable = () => {
+	const companies = getAllCompanies()
+	const sharesOwned = getSharesOwned()
+	const cash = getCash()
+
+	return tables.holdingsTable(companies, sharesOwned, cash)
+}
+
+const getValuesTable = () => {
+	const companies = getAllCompanies()
+	const sharesOwned = getSharesOwned()
+	const values = getValue()
+	const cash = getCash()
+
+	return tables.valuesTable(companies, sharesOwned, values, cash)
 }
 
 module.exports = {
@@ -273,8 +266,19 @@ module.exports = {
 	getCommandHistory,
 	undo,
 	initialize,
-	perform,
+	setValue,
+	getValue,
 	createOrLoadGame,
 	getSharesOwned,
-	changeSharesOwned
+	changeSharesOwned,
+	payDividends,
+	getCash,
+	addToHistory,
+	deleteGame,
+	newGame,
+	listGames,
+	updateStatusBar,
+	open,
+	getHoldingsTable,
+	getValuesTable
 }
