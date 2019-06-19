@@ -139,6 +139,11 @@ const parse = command => {
 			case "pa":
 			case "pay":
 			case "pays":
+				if (isNaN(parseInt(object))) {
+					object = object.toUpperCase()
+				} else {
+					object = parseInt(object)
+				}
 				result = {
 					verb: "dividend",
 					object,

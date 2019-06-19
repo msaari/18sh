@@ -102,7 +102,7 @@ describe("Parser", () => {
 		it("should return correct for dividends", () => {
 			expect(parser("ger dividends 10")).to.include({
 				verb: "dividend",
-				object: "10",
+				object: 10,
 				subject: "GER",
 				quantity: 0
 			})
@@ -121,6 +121,14 @@ describe("Parser", () => {
 				quantity: 0
 			})
 			expect(parser("ger v word")).property("object").to.be.NaN
+		})
+		it("should return null for unexpected command", () => {
+			expect(parser("not_a_proper_command")).to.include({
+				verb: null,
+				object: null,
+				subject: null,
+				quantity: 0
+			})
 		})
 	})
 })
