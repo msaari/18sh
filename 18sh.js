@@ -2,6 +2,7 @@
 
 const term = require("terminal-kit").terminal
 const gameState = require("./modules/gameState.js")
+const perform = require("./modules/perform")
 
 const commandPrompt = () => {
 	var commandHistory = gameState.getCommandHistory()
@@ -38,7 +39,7 @@ const commandPrompt = () => {
 					break
 				default:
 					if (gameState.getName()) {
-						gameState.perform(input)
+						perform(input, gameState)
 					} else {
 						term("^rNo active game!\n")
 					}
