@@ -108,7 +108,7 @@ describe("GameState", () => {
 		it("should set the value correctly", () => {
 			const company = "LNWR"
 			const value = 134
-			let feedback = gameState._setValue(company, value)
+			let feedback = gameState.setValue(company, value)
 			expect(feedback).to.have.string(`${company} value set to ^y${value}`)
 			expect(gameState._getValue(company)).to.equal(value)
 			expect(gameState._getValue()[company]).to.equal(value)
@@ -117,7 +117,7 @@ describe("GameState", () => {
 		it("should handle non-numeric values correctly", () => {
 			const company = "LNWR"
 			const value = "word"
-			let feedback = gameState._setValue(company, value)
+			let feedback = gameState.setValue(company, value)
 			expect(feedback).to.have.string("Value is not a number")
 		})
 
@@ -238,7 +238,7 @@ describe("GameState", () => {
 			gameState.payDividends("CR", 10)
 			gameState.addToHistory("CR dividend 10")
 
-			gameState._setValue("CR", 100)
+			gameState.setValue("CR", 100)
 			gameState.addToHistory("CR value 100")
 
 			const table = gameState.getValuesTable()
@@ -258,6 +258,22 @@ describe("GameState", () => {
 				const value = gameState._calculatePlayerValue(player)
 				expect(statusBar).to.include(`${player} $${value}`)
 			})
+		})
+	})
+
+	describe("give and take cash", () => {
+		it("should handle cash addition correctly", () => {
+			const cashBefore = gameState._getCash("MIKKO")
+			let cashChange = 10
+			gameState.changeCash("MIKKO", cashChange)
+			expect(gameState._getCash("MIKKO")).to.equal(cashBefore + cashChange)
+		})
+
+		it("should handle cash substraction correctly", () => {
+			const cashBefore = gameState._getCash("MIKKO")
+			let cashChange = -10
+			gameState.changeCash("MIKKO", cashChange)
+			expect(gameState._getCash("MIKKO")).to.equal(cashBefore + cashChange)
 		})
 	})
 })

@@ -164,6 +164,30 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "g":
+			case "gi":
+			case "giv":
+			case "give":
+				quantity = parseInt(object)
+				result = {
+					verb: "give",
+					object,
+					subject,
+					quantity
+				}
+				break
+			case "t":
+			case "ta":
+			case "tak":
+			case "take":
+				quantity = parseInt(object)
+				result = {
+					verb: "take",
+					object,
+					subject,
+					quantity
+				}
+				break
 			default:
 				result = {
 					verb: null,

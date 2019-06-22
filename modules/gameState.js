@@ -101,10 +101,10 @@ const _getCash = (player = null) => {
 	return gameState.cash
 }
 
-const _changeCash = (player, sum) => {
+const changeCash = (player, sum) => {
 	if (isNaN(gameState.cash[player])) gameState.cash[player] = 0
 	gameState.cash[player] += parseInt(sum)
-	return gameState.cash[player]
+	return `${player} now has ^y$${gameState.cash[player]}^\n`
 }
 
 /* Gets all players in the game. */
@@ -135,7 +135,7 @@ const payDividends = (payingCompany, value) => {
 	const sharesOwned = _getCompanyOwners(payingCompany)
 	Object.keys(sharesOwned).forEach(player => {
 		const moneyEarned = sharesOwned[player] * value
-		_changeCash(player, moneyEarned)
+		changeCash(player, moneyEarned)
 		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${
 			gameState.sharesOwned[player][payingCompany]
 		} shares.\n`
@@ -153,7 +153,7 @@ const resetGameState = () => {
 
 /* Set and get company values. */
 
-const _setValue = (company, value) => {
+const setValue = (company, value) => {
 	if (isNaN(value)) {
 		return `^rValue is not a number!^\n`
 	}
@@ -317,9 +317,10 @@ module.exports = {
 	getHoldingsTable,
 	getValuesTable,
 	resetGameState,
+	changeCash,
 	_getCash,
 	_setName,
-	_setValue,
+	setValue,
 	_getValue,
 	_getPlayers,
 	_calculatePlayerValue

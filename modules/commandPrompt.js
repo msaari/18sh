@@ -139,6 +139,14 @@ const perform = (command, silent = false) => {
 			value(action.subject, action.object)
 			addToHistory = true
 			break
+		case "give":
+			give(action.subject, action.quantity)
+			addToHistory = true
+			break
+		case "take":
+			take(action.subject, action.quantity)
+			addToHistory = true
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -209,6 +217,16 @@ const newGame = name => {
 const open = name => {
 	const feedback = gameState.open(name)
 	updateGameState(gameState.getCommandHistory())
+	term(feedback)
+}
+
+const give = (player, quantity) => {
+	const feedback = gameState.changeCash(player, quantity)
+	term(feedback)
+}
+
+const take = (player, quantity) => {
+	const feedback = gameState.changeCash(player, quantity * -1)
 	term(feedback)
 }
 

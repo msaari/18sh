@@ -99,6 +99,34 @@ describe("Parser", () => {
 				quantity: 2
 			})
 		})
+		it("should return correct for give", () => {
+			expect(parser("mikko give 100")).to.include({
+				verb: "give",
+				object: "100",
+				subject: "MIKKO",
+				quantity: 100
+			})
+			expect(parser("mikko g 100")).to.include({
+				verb: "give",
+				object: "100",
+				subject: "MIKKO",
+				quantity: 100
+			})
+		})
+		it("should return correct for take", () => {
+			expect(parser("mikko take 100")).to.include({
+				verb: "take",
+				object: "100",
+				subject: "MIKKO",
+				quantity: 100
+			})
+			expect(parser("mikko t 100")).to.include({
+				verb: "take",
+				object: "100",
+				subject: "MIKKO",
+				quantity: 100
+			})
+		})
 		it("should return correct for dividends", () => {
 			expect(parser("ger dividends 10")).to.include({
 				verb: "dividend",
@@ -106,7 +134,19 @@ describe("Parser", () => {
 				subject: "GER",
 				quantity: 0
 			})
+			expect(parser("ger d 10")).to.include({
+				verb: "dividend",
+				object: 10,
+				subject: "GER",
+				quantity: 0
+			})
 			expect(parser("ger pays prev")).to.include({
+				verb: "dividend",
+				subject: "GER",
+				object: "PREV",
+				quantity: 0
+			})
+			expect(parser("ger p prev")).to.include({
 				verb: "dividend",
 				subject: "GER",
 				object: "PREV",
@@ -124,6 +164,12 @@ describe("Parser", () => {
 		})
 		it("should return null for unexpected command", () => {
 			expect(parser("not_a_proper_command")).to.include({
+				verb: null,
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+			expect(parser("not_a_proper_command parameter and_another")).to.include({
 				verb: null,
 				object: null,
 				subject: null,
