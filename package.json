@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "An 18xx shell.",
   "main": "18sh.js",
+  "bin": "18sh.js",
   "scripts": {
     "test": "env NODE_ENV=test mocha",
     "watch": "env NODE_ENV=test mocha --watch",

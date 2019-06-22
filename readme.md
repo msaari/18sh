@@ -1,5 +1,7 @@
 # 18SH – an 18xx shell
 
+![Travis build status](https://img.shields.io/travis/msaari/18sh.svg?style=flat-square)
+
 18SH is designed as a replacement for the spreadsheets used to calcualte end of
 game scores in 18xx games. Spreadsheets are fine, especially if they're well
 designed with formulas to avoid entering the same data twice, but I wanted to
