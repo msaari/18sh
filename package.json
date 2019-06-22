@@ -6,7 +6,7 @@
   "scripts": {
     "test": "env NODE_ENV=test mocha",
     "watch": "env NODE_ENV=test mocha --watch",
-    "coverage": "env NODE_ENV=test nyc --reporter=text mocha"
+    "coverage": "env NODE_ENV=test nyc --reporter=html mocha"
   },
   "keywords": [
     "18xx"

@@ -10,7 +10,7 @@ describe("GameState", () => {
 	describe("setName and getName", () => {
 		it("should return the set name", () => {
 			const name = "test-name"
-			gameState.setName(name)
+			gameState._setName(name)
 			expect(gameState.getName()).to.deep.equal(name)
 		})
 	})
@@ -18,10 +18,14 @@ describe("GameState", () => {
 	describe("createOrLoadGame", () => {
 		conf.clear()
 		it("should create a new game", () => {
-			expect(gameState.createOrLoadGame()).to.have.string("Your game name is")
+			const response = gameState.createOrLoadGame()
+			expect(response.feedback).to.have.string("Your game name is")
+			expect(response.mode).to.equal("create")
 		})
 		it("should continue an existing game", () => {
-			expect(gameState.createOrLoadGame()).to.have.string("Continuing game")
+			const response = gameState.createOrLoadGame()
+			expect(response.feedback).to.have.string("Continuing game")
+			expect(response.mode).to.equal("load")
 		})
 	})
 
@@ -71,15 +75,32 @@ describe("GameState", () => {
 			gameState.payDividends("CR", 10)
 			gameState.addToHistory("CR dividend 10")
 
-			expect(gameState.getCash("MIKKO")).to.equal(40)
-			expect(gameState.getCash("NOOA")).to.equal(20)
+			expect(gameState._getCash("MIKKO")).to.equal(40)
+			expect(gameState._getCash("NOOA")).to.equal(20)
 		})
 
 		it("should repay previous dividends correctly", () => {
+			gameState.addToHistory("CR value 100")
+			gameState.addToHistory("NBR value 100")
+			gameState.addToHistory("NBR dividend 15")
+
+			gameState.payDividends("CR", "PREV")
+			gameState.addToHistory("CR dividend PREV")
+
+			expect(gameState._getCash("MIKKO")).to.equal(80)
+			expect(gameState._getCash("NOOA")).to.equal(40)
+
 			gameState.payDividends("CR", "PREV")
 
-			expect(gameState.getCash("MIKKO")).to.equal(80)
-			expect(gameState.getCash("NOOA")).to.equal(40)
+			expect(gameState._getCash("MIKKO")).to.equal(120)
+			expect(gameState._getCash("NOOA")).to.equal(60)
+		})
+
+		it("should handle non-number values correctly (ie. 0)", () => {
+			gameState.payDividends("CR", "NOT_A_NUMBER")
+
+			expect(gameState._getCash("MIKKO")).to.equal(120)
+			expect(gameState._getCash("NOOA")).to.equal(60)
 		})
 	})
 
@@ -87,17 +108,22 @@ describe("GameState", () => {
 		it("should set the value correctly", () => {
 			const company = "LNWR"
 			const value = 134
-			let feedback = gameState.setValue(company, value)
+			let feedback = gameState._setValue(company, value)
 			expect(feedback).to.have.string(`${company} value set to ^y${value}`)
-			expect(gameState.getValue(company)).to.equal(value)
-			expect(gameState.getValue()[company]).to.equal(value)
+			expect(gameState._getValue(company)).to.equal(value)
+			expect(gameState._getValue()[company]).to.equal(value)
 		})
 
 		it("should handle non-numeric values correctly", () => {
 			const company = "LNWR"
 			const value = "word"
-			let feedback = gameState.setValue(company, value)
+			let feedback = gameState._setValue(company, value)
 			expect(feedback).to.have.string("Value is not a number")
+		})
+
+		it("should return 0 for non-existing company", () => {
+			const company = "NON_EXISTING_COMPANY"
+			expect(gameState._getValue(company)).to.equal(0)
 		})
 	})
 
@@ -179,14 +205,19 @@ describe("GameState", () => {
 			gameState.addToHistory("MIKKO buys CR 4")
 			gameState.changeSharesOwned("NOOA", "CR", 2)
 			gameState.addToHistory("NOOA buys CR 2")
+			gameState.changeSharesOwned("MIKKO", "NBR", 2)
+			gameState.addToHistory("MIKKO buys NBR 2")
+			gameState.changeSharesOwned("ANNI", "NBR", 1)
+			gameState.addToHistory("ANNI buys NBR")
 
 			gameState.payDividends("CR", 10)
 			gameState.addToHistory("CR dividend 10")
 
 			const table = gameState.getHoldingsTable()
-			expect(table[0]).to.deep.equal(["Player", "Cash", "CR"])
-			expect(table[1]).to.deep.equal(["MIKKO", 40, 4])
-			expect(table[2]).to.deep.equal(["NOOA", 20, 2])
+			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "NBR"])
+			expect(table[1]).to.deep.equal(["MIKKO", 40, 4, 2])
+			expect(table[2]).to.deep.equal(["NOOA", 20, 2, 0])
+			expect(table[3]).to.deep.equal(["ANNI", 0, 0, 1])
 		})
 	})
 
@@ -199,17 +230,34 @@ describe("GameState", () => {
 			gameState.addToHistory("MIKKO buys CR 4")
 			gameState.changeSharesOwned("NOOA", "CR", 2)
 			gameState.addToHistory("NOOA buys CR 2")
+			gameState.changeSharesOwned("MIKKO", "NBR", 2)
+			gameState.addToHistory("MIKKO buys NBR 2")
+			gameState.changeSharesOwned("ANNI", "NBR", 1)
+			gameState.addToHistory("ANNI buys NBR")
 
 			gameState.payDividends("CR", 10)
 			gameState.addToHistory("CR dividend 10")
 
-			gameState.setValue("CR", 100)
+			gameState._setValue("CR", 100)
 			gameState.addToHistory("CR value 100")
 
 			const table = gameState.getValuesTable()
-			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "Total"])
-			expect(table[1]).to.deep.equal(["MIKKO", 40, 400, 440])
-			expect(table[2]).to.deep.equal(["NOOA", 20, 200, 220])
+			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "NBR", "Total"])
+			expect(table[1]).to.deep.equal(["MIKKO", 40, 400, 0, 440])
+			expect(table[2]).to.deep.equal(["NOOA", 20, 200, 0, 220])
+			expect(table[3]).to.deep.equal(["ANNI", 0, 0, 0, 0])
+		})
+	})
+
+	describe("statusBarContent and calculatePlayerValue", () => {
+		it("should return correct content for status bar", () => {
+			const statusBar = gameState.statusBarContent()
+
+			const players = gameState._getPlayers()
+			players.forEach(player => {
+				const value = gameState._calculatePlayerValue(player)
+				expect(statusBar).to.include(`${player} $${value}`)
+			})
 		})
 	})
 })
