@@ -102,13 +102,13 @@ describe("Parser", () => {
 		it("should return correct for give", () => {
 			expect(parser("mikko give 100")).to.include({
 				verb: "give",
-				object: "100",
+				object: null,
 				subject: "MIKKO",
 				quantity: 100
 			})
 			expect(parser("mikko g 100")).to.include({
 				verb: "give",
-				object: "100",
+				object: null,
 				subject: "MIKKO",
 				quantity: 100
 			})
@@ -116,13 +116,13 @@ describe("Parser", () => {
 		it("should return correct for take", () => {
 			expect(parser("mikko take 100")).to.include({
 				verb: "take",
-				object: "100",
+				object: null,
 				subject: "MIKKO",
 				quantity: 100
 			})
 			expect(parser("mikko t 100")).to.include({
 				verb: "take",
-				object: "100",
+				object: null,
 				subject: "MIKKO",
 				quantity: 100
 			})

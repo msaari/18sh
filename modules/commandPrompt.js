@@ -155,7 +155,8 @@ const perform = (command, silent = false) => {
 	if (updateMode) addToHistory = false
 
 	if (addToHistory) {
-		let normalizedCommand = `${action.subject} ${action.verb} ${action.object}`
+		let normalizedCommand = `${action.subject} ${action.verb}`
+		if (action.object) normalizedCommand += ` ${action.object}`
 		if (action.quantity) normalizedCommand += ` ${action.quantity}`
 		gameState.addToHistory(normalizedCommand)
 	}
@@ -222,12 +223,16 @@ const open = name => {
 
 const give = (player, quantity) => {
 	const feedback = gameState.changeCash(player, quantity)
-	term(feedback)
+	if (!updateMode) {
+		term(feedback)
+	}
 }
 
 const take = (player, quantity) => {
 	const feedback = gameState.changeCash(player, quantity * -1)
-	term(feedback)
+	if (!updateMode) {
+		term(feedback)
+	}
 }
 
 module.exports = {

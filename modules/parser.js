@@ -169,6 +169,7 @@ const parse = command => {
 			case "giv":
 			case "give":
 				quantity = parseInt(object)
+				object = null
 				result = {
 					verb: "give",
 					object,
@@ -181,6 +182,7 @@ const parse = command => {
 			case "tak":
 			case "take":
 				quantity = parseInt(object)
+				object = null
 				result = {
 					verb: "take",
 					object,

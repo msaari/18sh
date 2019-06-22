@@ -27,8 +27,8 @@ const getName = () => gameState.gameName
 
 /* Set, get and add to the command history. */
 
-const setCommandHistory = commandHistory => {
-	commandHistory.saveCommandHistory(commandHistory, gameState)
+const setCommandHistory = newCommandHistory => {
+	commandHistory.saveCommandHistory(newCommandHistory, gameState)
 }
 
 const getCommandHistory = () => {
