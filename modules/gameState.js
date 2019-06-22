@@ -1,11 +1,8 @@
 "use strict"
 
 const Configstore = require("configstore")
-const term = require("terminal-kit").terminal
 const nameGenerator = require("./generateName")
 const commandHistory = require("./commandHistory")
-const statusBar = require("./statusBar")
-const perform = require("./perform")
 const tables = require("./tables")
 
 /* eslint-disable no-process-env */
@@ -20,11 +17,19 @@ const gameState = {
 	undid: ""
 }
 
-const setName = name => {
+/* Set and get the game name */
+
+const _setName = name => {
 	gameState.gameName = name
 }
 
 const getName = () => gameState.gameName
+
+/* Set, get and add to the command history. */
+
+const setCommandHistory = commandHistory => {
+	commandHistory.saveCommandHistory(commandHistory, gameState)
+}
 
 const getCommandHistory = () => {
 	const history = commandHistory.getCommandHistory(gameState)
@@ -35,43 +40,7 @@ const addToHistory = command => {
 	commandHistory.addCommandToHistory(command, gameState)
 }
 
-const getCash = (player = null) => {
-	if (player) {
-		return gameState.cash[player]
-	}
-	return gameState.cash
-}
-
-const undo = () => {
-	var commandHistoryArray = commandHistory.getCommandHistory(gameState)
-	var undid = commandHistoryArray.pop()
-	updateGameState(commandHistoryArray)
-	commandHistory.saveCommandHistory(commandHistoryArray, gameState)
-	return undid
-}
-
-const createOrLoadGame = () => {
-	let currentGameName = conf.get("currentGameName")
-	let feedback = ""
-	if (!currentGameName) {
-		currentGameName = nameGenerator.generateName()
-		setName(currentGameName)
-		feedback = `Your game name is ^y'${getName()}'^\n`
-		conf.set("currentGameName", currentGameName)
-	} else if (currentGameName) {
-		feedback = `Continuing game ^y'${currentGameName}'^\n`
-		setName(currentGameName)
-		updateGameState(conf.get(getName()))
-	}
-	return feedback
-}
-
-const initialize = () => {
-	term.fullscreen()
-	term.nextLine()
-	term(createOrLoadGame())
-	statusBar(gameState)
-}
+/* Sets, gets and changes the share ownership data. */
 
 const getSharesOwned = () => gameState.sharesOwned
 
@@ -107,13 +76,7 @@ const changeSharesOwned = (actor, company, quantity) => {
 	return feedback
 }
 
-const changeCash = (player, sum) => {
-	if (isNaN(gameState.cash[player])) gameState.cash[player] = 0
-	gameState.cash[player] += parseInt(sum)
-	return gameState.cash[player]
-}
-
-const getCompanyOwners = company => {
+const _getCompanyOwners = company => {
 	const sharesOwned = getSharesOwned()
 	const owners = Object.keys(sharesOwned).reduce((accumulator, player) => {
 		const shares = Object.keys(sharesOwned[player]).reduce(
@@ -129,6 +92,37 @@ const getCompanyOwners = company => {
 	return owners
 }
 
+/* Sets and gets player cash. */
+
+const _getCash = (player = null) => {
+	if (player) {
+		return gameState.cash[player] ? gameState.cash[player] : 0
+	}
+	return gameState.cash
+}
+
+const _changeCash = (player, sum) => {
+	if (isNaN(gameState.cash[player])) gameState.cash[player] = 0
+	gameState.cash[player] += parseInt(sum)
+	return gameState.cash[player]
+}
+
+/* Gets all players in the game. */
+
+const _getPlayers = () => {
+	let players = []
+	const sharesOwned = getSharesOwned()
+	Object.keys(gameState.cash).forEach(player => {
+		if (!players[player]) players.push(player)
+	})
+	Object.keys(sharesOwned).forEach(owner => {
+		if (!players[owner]) players.push(owner)
+	})
+	return players
+}
+
+/* Dividend payments. */
+
 const payDividends = (payingCompany, value) => {
 	if (typeof value === "string" && value.substring(0, 2) === "PR") {
 		value = commandHistory.getPreviousDividend(payingCompany, gameState)
@@ -138,10 +132,10 @@ const payDividends = (payingCompany, value) => {
 	}
 
 	let feedback = ""
-	const sharesOwned = getCompanyOwners(payingCompany)
+	const sharesOwned = _getCompanyOwners(payingCompany)
 	Object.keys(sharesOwned).forEach(player => {
 		const moneyEarned = sharesOwned[player] * value
-		changeCash(player, moneyEarned)
+		_changeCash(player, moneyEarned)
 		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${
 			gameState.sharesOwned[player][payingCompany]
 		} shares.\n`
@@ -149,21 +143,17 @@ const payDividends = (payingCompany, value) => {
 	return feedback
 }
 
+/* Reset game state. */
+
 const resetGameState = () => {
 	gameState.sharesOwned = []
 	gameState.cash = []
 	gameState.values = []
 }
 
-const updateGameState = commandHistoryArray => {
-	resetGameState()
-	const silent = true
-	if (commandHistoryArray) {
-		commandHistoryArray.map(command => perform(command, module.exports, silent))
-	}
-}
+/* Set and get company values. */
 
-const setValue = (company, value) => {
+const _setValue = (company, value) => {
 	if (isNaN(value)) {
 		return `^rValue is not a number!^\n`
 	}
@@ -171,7 +161,7 @@ const setValue = (company, value) => {
 	return `${company} value set to ^y${value}^\n`
 }
 
-const getValue = (company = null) => {
+const _getValue = (company = null) => {
 	if (company) {
 		if (!gameState.values[company]) gameState.values[company] = 0
 		return gameState.values[company]
@@ -179,11 +169,26 @@ const getValue = (company = null) => {
 	return gameState.values
 }
 
+/* Calculate player value. */
+
+const _calculatePlayerValue = player => {
+	const sharesOwned = getSharesOwned()
+	let playerValue = _getCash(player)
+	if (sharesOwned[player]) {
+		playerValue = Object.keys(sharesOwned[player]).reduce((value, company) => {
+			const companyValue = sharesOwned[player][company] * _getValue(company)
+			return value + companyValue
+		}, playerValue)
+	}
+	return playerValue
+}
+
+/* Game management: list, open, delete, create. */
+
 const open = name => {
 	let feedback = ""
 	if (conf.has(name)) {
 		gameState.gameName = name
-		updateGameState(conf.get(name))
 		feedback = `Opened game ^y'${name}'^\n`
 		conf.set("currentGameName", name)
 	} else {
@@ -230,11 +235,41 @@ const newGame = gameName => {
 	return feedback
 }
 
-const updateStatusBar = () => {
-	statusBar(gameState)
+const createOrLoadGame = () => {
+	let currentGameName = conf.get("currentGameName")
+	let feedback = ""
+	let mode = ""
+	if (!currentGameName) {
+		currentGameName = nameGenerator.generateName()
+		_setName(currentGameName)
+		conf.set("currentGameName", currentGameName)
+		mode = "create"
+		feedback = `Your game name is ^y'${getName()}'^\n`
+	} else if (currentGameName) {
+		feedback = `Continuing game ^y'${currentGameName}'^\n`
+		mode = "load"
+		_setName(currentGameName)
+	}
+	return {
+		feedback,
+		mode
+	}
 }
 
-const getAllCompanies = () => {
+/* Generates the status bar contents. */
+
+const statusBarContent = () => {
+	let barContent = ""
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		const money = _calculatePlayerValue(owner)
+		barContent += `\t${owner} $${money}`
+	})
+	return barContent
+}
+
+/* Gets all companies in play. */
+
+const _getAllCompanies = () => {
 	const allCompanies = []
 
 	Object.keys(gameState.sharesOwned).forEach(owner => {
@@ -246,43 +281,46 @@ const getAllCompanies = () => {
 	return Array.from(new Set(allCompanies))
 }
 
+/* Generate data for holdings and values tables. */
+
 const getHoldingsTable = () => {
-	const companies = getAllCompanies()
+	const companies = _getAllCompanies()
 	const sharesOwned = getSharesOwned()
-	const cash = getCash()
+	const cash = _getCash()
 
 	return tables.holdingsTable(companies, sharesOwned, cash)
 }
 
 const getValuesTable = () => {
-	const companies = getAllCompanies()
+	const companies = _getAllCompanies()
 	const sharesOwned = getSharesOwned()
-	const values = getValue()
-	const cash = getCash()
+	const values = _getValue()
+	const cash = _getCash()
 
 	return tables.valuesTable(companies, sharesOwned, values, cash)
 }
 
 module.exports = {
-	setName,
 	getName,
 	getCommandHistory,
-	undo,
-	initialize,
-	setValue,
-	getValue,
-	createOrLoadGame,
+	setCommandHistory,
+	addToHistory,
 	getSharesOwned,
 	changeSharesOwned,
 	payDividends,
-	getCash,
-	addToHistory,
 	deleteGame,
 	newGame,
 	listGames,
-	updateStatusBar,
+	createOrLoadGame,
 	open,
+	statusBarContent,
 	getHoldingsTable,
 	getValuesTable,
-	resetGameState
+	resetGameState,
+	_getCash,
+	_setName,
+	_setValue,
+	_getValue,
+	_getPlayers,
+	_calculatePlayerValue
 }

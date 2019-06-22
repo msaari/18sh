@@ -2,7 +2,7 @@
 
 const term = require("terminal-kit").terminal
 
-const showStatus = gameState => {
+const showStatus = barContent => {
 	term.saveCursor()
 	term.eraseLineAfter()
 	term.moveTo(1, 1)
@@ -12,20 +12,7 @@ const showStatus = gameState => {
 	term.moveTo(1, 1)
 	term("18SH")
 
-	let values = ""
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		if (!gameState.cash[owner]) gameState.cash[owner] = 0
-		let money = gameState.cash[owner]
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			let companyValue =
-				gameState.sharesOwned[owner][company] * gameState.values[company]
-			if (companyValue > 0) {
-				money += parseInt(companyValue)
-			}
-		})
-		values += `\t${owner} $${money}`
-	})
-	term(values)
+	term(barContent)
 
 	term.restoreCursor()
 }
