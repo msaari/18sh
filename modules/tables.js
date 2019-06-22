@@ -14,7 +14,7 @@ const holdingsTable = (companies, sharesOwned, cash) => {
 			if (sharesOwned[owner][company] > 0) {
 				row.push(sharesOwned[owner][company])
 			} else {
-				row.push("0")
+				row.push(0)
 			}
 		})
 		table.push(row)
@@ -37,7 +37,7 @@ const valuesTable = (companies, sharesOwned, values, cash) => {
 				money += parseInt(companyValue)
 				row.push(companyValue)
 			} else {
-				row.push("0")
+				row.push(0)
 			}
 		})
 		row.push(money)
