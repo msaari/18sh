@@ -4,9 +4,7 @@ node_js:
 env:
   - NODE_ENV=test
 install:
-  - npm install -g mocha
-  - npm install -g istanbul
+  - npm install -g nyc
   - npm install -g codecov
 script:
-  - istanbul cover /home/travis/.nvm/versions/node/v12.4.0/lib/node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
-  - codecov
+  - nyc report --reporter=text-lcov > coverage.lcov && codecov
