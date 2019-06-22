@@ -8,5 +8,5 @@ install:
   - npm install -g istanbul
   - npm install -g codecov
 script:
-  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+  - istanbul cover /home/travis/.nvm/versions/node/v12.4.0/lib/node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
   - codecov
