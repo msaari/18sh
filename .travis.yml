@@ -4,6 +4,7 @@ node_js:
 env:
   - NODE_ENV=test
 install:
+  - npm install -g istanbul
   - npm install -g codecov
 script:
   - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
