@@ -4,6 +4,7 @@ node_js:
 env:
   - NODE_ENV=test
 install:
+  - npm install -g mocha
   - npm install -g istanbul
   - npm install -g codecov
 script:
