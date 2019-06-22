@@ -14,6 +14,7 @@ const gameState = {
 	sharesOwned: [],
 	cash: [],
 	values: [],
+	bankSize: null,
 	undid: ""
 }
 
@@ -149,6 +150,7 @@ const resetGameState = () => {
 	gameState.sharesOwned = []
 	gameState.cash = []
 	gameState.values = []
+	gameState.bankSize = null
 }
 
 /* Set and get company values. */
@@ -260,9 +262,20 @@ const createOrLoadGame = () => {
 
 const statusBarContent = () => {
 	let barContent = ""
+	if (gameState.bankSize) {
+		const bank = _getBankRemains()
+		barContent += `\tBANK $${bank}`
+	} else {
+		const totalCash = Object.keys(_getCash()).reduce((total, player) => {
+			total += _getCash(player)
+			return total
+		}, 0)
+		barContent += `\tTOTAL $${totalCash}`
+	}
 	Object.keys(gameState.sharesOwned).forEach(owner => {
-		const money = _calculatePlayerValue(owner)
-		barContent += `\t${owner} $${money}`
+		const value = _calculatePlayerValue(owner)
+		const cash = _getCash(owner)
+		barContent += `\t${owner} $${cash} ($${value})`
 	})
 	return barContent
 }
@@ -300,6 +313,28 @@ const getValuesTable = () => {
 	return tables.valuesTable(companies, sharesOwned, values, cash)
 }
 
+/* Bank size management. */
+
+const setBankSize = size => {
+	if (!isNaN(parseInt(size))) gameState.bankSize = parseInt(size)
+	return `Bank size set to ^y$${size}^\n`
+}
+
+const _getBankRemains = () => {
+	const cashReserves = _getCash()
+	const playerCash = Object.keys(cashReserves).reduce((total, player) => {
+		total += cashReserves[player]
+		return total
+	}, 0)
+
+	return gameState.bankSize - playerCash
+}
+
+const getBankRemains = () => {
+	const bankRemains = _getBankRemains()
+	return `Bank has ^y$${bankRemains}^\n`
+}
+
 module.exports = {
 	getName,
 	getCommandHistory,
@@ -318,9 +353,12 @@ module.exports = {
 	getValuesTable,
 	resetGameState,
 	changeCash,
+	setBankSize,
+	getBankRemains,
+	setValue,
+	_getBankRemains,
 	_getCash,
 	_setName,
-	setValue,
 	_getValue,
 	_getPlayers,
 	_calculatePlayerValue

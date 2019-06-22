@@ -256,7 +256,8 @@ describe("GameState", () => {
 			const players = gameState._getPlayers()
 			players.forEach(player => {
 				const value = gameState._calculatePlayerValue(player)
-				expect(statusBar).to.include(`${player} $${value}`)
+				const cash = gameState._getCash(player)
+				expect(statusBar).to.include(`${player} $${cash} ($${value})`)
 			})
 		})
 	})
@@ -274,6 +275,21 @@ describe("GameState", () => {
 			let cashChange = -10
 			gameState.changeCash("MIKKO", cashChange)
 			expect(gameState._getCash("MIKKO")).to.equal(cashBefore + cashChange)
+		})
+	})
+
+	describe("getBankRemains and setBankSize", () => {
+		const bankSize = 4000
+		it("should set the bank size correctly", () => {
+			gameState.resetGameState()
+			gameState.setBankSize(bankSize)
+			expect(gameState._getBankRemains()).to.equal(bankSize)
+		})
+
+		it("should adjust the bank size based on player cash", () => {
+			const takeFromBank = 1000
+			gameState.changeCash("MIKKO", takeFromBank)
+			expect(gameState._getBankRemains()).to.equal(bankSize - takeFromBank)
 		})
 	})
 })

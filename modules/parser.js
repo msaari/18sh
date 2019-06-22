@@ -44,6 +44,17 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "b":
+			case "ba":
+			case "ban":
+			case "bank":
+				result = {
+					verb: "bank",
+					object: null,
+					subject: null,
+					quantity: 0
+				}
+				break
 			default:
 				result = {
 					verb: null,
@@ -79,6 +90,15 @@ const parse = command => {
 			case "start":
 				result = {
 					verb: "start",
+					object,
+					subject: null,
+					quantity: 0
+				}
+				break
+			case "banksize":
+				object = isNaN(parseInt(object)) ? null : parseInt(object)
+				result = {
+					verb: "banksize",
 					object,
 					subject: null,
 					quantity: 0

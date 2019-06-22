@@ -162,6 +162,28 @@ describe("Parser", () => {
 			})
 			expect(parser("ger v word")).property("object").to.be.NaN
 		})
+		it("should return correct for bank size", () => {
+			expect(parser("banksize 4000")).to.include({
+				verb: "banksize",
+				object: 4000,
+				subject: null,
+				quantity: 0
+			})
+			expect(parser("banksize word")).to.include({
+				verb: "banksize",
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+		})
+		it("should return correct for bank", () => {
+			expect(parser("bank")).to.include({
+				verb: "bank",
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+		})
 		it("should return null for unexpected command", () => {
 			expect(parser("not_a_proper_command")).to.include({
 				verb: null,

@@ -147,6 +147,14 @@ const perform = (command, silent = false) => {
 			take(action.subject, action.quantity)
 			addToHistory = true
 			break
+		case "banksize":
+			bankSize(action.object)
+			addToHistory = true
+			break
+		case "bank":
+			showBankRemains()
+			addToHistory = false
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -155,10 +163,12 @@ const perform = (command, silent = false) => {
 	if (updateMode) addToHistory = false
 
 	if (addToHistory) {
-		let normalizedCommand = `${action.subject} ${action.verb}`
-		if (action.object) normalizedCommand += ` ${action.object}`
-		if (action.quantity) normalizedCommand += ` ${action.quantity}`
-		gameState.addToHistory(normalizedCommand)
+		let normalizedCommand = ""
+		if (action.subject) normalizedCommand += `${action.subject} `
+		if (action.verb) normalizedCommand += `${action.verb} `
+		if (action.object) normalizedCommand += `${action.object} `
+		if (action.quantity) normalizedCommand += `${action.quantity}`
+		gameState.addToHistory(normalizedCommand.trim())
 	}
 	updateStatusBar()
 }
@@ -230,6 +240,20 @@ const give = (player, quantity) => {
 
 const take = (player, quantity) => {
 	const feedback = gameState.changeCash(player, quantity * -1)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const bankSize = size => {
+	const feedback = gameState.setBankSize(size)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const showBankRemains = () => {
+	const feedback = gameState.getBankRemains()
 	if (!updateMode) {
 		term(feedback)
 	}
