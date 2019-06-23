@@ -55,6 +55,22 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "c":
+			case "co":
+			case "com":
+			case "comp":
+			case "compa":
+			case "compan":
+			case "compani":
+			case "companie":
+			case "companies":
+				result = {
+					verb: "companies",
+					object: null,
+					subject: null,
+					quantity: 0
+				}
+				break
 			default:
 				result = {
 					verb: null,
@@ -95,6 +111,13 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "b":
+			case "ba":
+			case "ban":
+			case "bank":
+			case "banks":
+			case "banksi":
+			case "banksiz":
 			case "banksize":
 				object = isNaN(parseInt(object)) ? null : parseInt(object)
 				result = {

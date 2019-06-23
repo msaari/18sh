@@ -169,6 +169,12 @@ describe("Parser", () => {
 				subject: null,
 				quantity: 0
 			})
+			expect(parser("b 4000")).to.include({
+				verb: "banksize",
+				object: 4000,
+				subject: null,
+				quantity: 0
+			})
 			expect(parser("banksize word")).to.include({
 				verb: "banksize",
 				object: null,
@@ -179,6 +185,26 @@ describe("Parser", () => {
 		it("should return correct for bank", () => {
 			expect(parser("bank")).to.include({
 				verb: "bank",
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+			expect(parser("b")).to.include({
+				verb: "bank",
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+		})
+		it("should return correct for companies", () => {
+			expect(parser("companies")).to.include({
+				verb: "companies",
+				object: null,
+				subject: null,
+				quantity: 0
+			})
+			expect(parser("c")).to.include({
+				verb: "companies",
 				object: null,
 				subject: null,
 				quantity: 0

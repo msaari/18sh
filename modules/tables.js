@@ -46,7 +46,29 @@ const valuesTable = (companies, sharesOwned, values, cash) => {
 	return table
 }
 
+const companyTable = (companies, sharesOwned, values, players) => {
+	const table = new Table()
+	const headerRow = ["Company", "Value"].concat(players)
+	table.push(headerRow)
+
+	companies.sort((companyA, companyB) => values[companyB] - values[companyA])
+	companies.forEach(company => {
+		let row = [company, values[company]]
+		players.forEach(player => {
+			let companySharesOwned = sharesOwned[player][company]
+			if (companySharesOwned) {
+				row.push(companySharesOwned)
+			} else {
+				row.push(0)
+			}
+		})
+		table.push(row)
+	})
+	return table
+}
+
 module.exports = {
 	holdingsTable,
-	valuesTable
+	valuesTable,
+	companyTable
 }

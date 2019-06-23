@@ -313,6 +313,15 @@ const getValuesTable = () => {
 	return tables.valuesTable(companies, sharesOwned, values, cash)
 }
 
+const getCompanyTable = () => {
+	const companies = _getAllCompanies()
+	const sharesOwned = getSharesOwned()
+	const values = _getValue()
+	const players = _getPlayers()
+
+	return tables.companyTable(companies, sharesOwned, values, players)
+}
+
 /* Bank size management. */
 
 const setBankSize = size => {

@@ -155,6 +155,10 @@ const perform = (command, silent = false) => {
 			showBankRemains()
 			addToHistory = false
 			break
+		case "companies":
+			companies()
+			addToHistory = false
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -194,6 +198,10 @@ const holdings = () => {
 
 const values = () => {
 	term(gameState.getValuesTable() + "\n")
+}
+
+const companies = () => {
+	term(gameState.getCompanyTable() + "\n")
 }
 
 const dividend = (payingCompany, value) => {

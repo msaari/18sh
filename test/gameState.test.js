@@ -29,7 +29,6 @@ describe("GameState", () => {
 		})
 	})
 
-	console.log("gameState logging", gameState.gameName)
 	describe("changeSharesOwned", () => {
 		const actor = "MIKKO"
 		const company = "LSWR"
@@ -246,6 +245,24 @@ describe("GameState", () => {
 			expect(table[1]).to.deep.equal(["MIKKO", 40, 400, 0, 440])
 			expect(table[2]).to.deep.equal(["NOOA", 20, 200, 0, 220])
 			expect(table[3]).to.deep.equal(["ANNI", 0, 0, 0, 0])
+		})
+	})
+
+	describe("getCompanyTable", () => {
+		it("should create a correct company values table", () => {
+			gameState.setValue("NBR", 134)
+			gameState.addToHistory("NBR value 134")
+
+			const table = gameState.getCompanyTable()
+			expect(table[0]).to.deep.equal([
+				"Company",
+				"Value",
+				"MIKKO",
+				"NOOA",
+				"ANNI"
+			])
+			expect(table[1]).to.deep.equal(["NBR", 134, 2, 0, 1])
+			expect(table[2]).to.deep.equal(["CR", 100, 4, 2, 0])
 		})
 	})
 
