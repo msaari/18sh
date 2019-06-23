@@ -3,6 +3,9 @@
 ## TODO
 - Handling company cash.
 
+## 1.1.1 – 2019-06-23
+- Removed one console.log() that was left in the code.
+
 ## 1.1.0 – 2019-06-23
 - Added: Instead of sum, dividends can be now paid as `prev` to repeat the
 previous dividend payment for the company.

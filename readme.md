@@ -177,6 +177,10 @@ A list of these commands.
 Alias `exit`. Exits the 18SH shell. The game state is automatically saved after
 every command in the local configstore (`~/.config/configstore/18sh.json`).
 
+## BGG thread
+
+For discussion about 18SH, see [the BoardGameGeek 18SH thread](https://boardgamegeek.com/thread/2225619/18sh-command-line-replacement-spreadsheets).
+
 ## Changelog
 
 See [changelog.md](changelog.md) in the repo.

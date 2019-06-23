@@ -243,7 +243,6 @@ const newGame = name => {
 const open = name => {
 	name = name.toLowerCase()
 	const feedback = gameState.open(name)
-	console.log("ch", gameState.getCommandHistory())
 	updateGameState(gameState.getCommandHistory())
 	term(feedback)
 }
