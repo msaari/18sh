@@ -4,6 +4,7 @@ const parser = require("./parser")
 const term = require("terminal-kit").terminal
 const gameState = require("./gameState")
 const statusBar = require("./statusBar")
+const usage = require("./usage")
 
 var updateMode = false
 
@@ -70,6 +71,10 @@ const commandPrompt = () => {
 					term("Bye!\n")
 					/* eslint-disable no-process-exit */
 					process.exit()
+					break
+				case "help":
+					help()
+					commandPrompt()
 					break
 				default:
 					if (gameState.getName()) {
@@ -224,17 +229,21 @@ const listGames = () => {
 }
 
 const deleteGame = name => {
+	name = name.toLowerCase()
 	const feedback = gameState.deleteGame(name)
 	term(feedback)
 }
 
 const newGame = name => {
+	name = name.toLowerCase()
 	const feedback = gameState.newGame(name)
 	term(feedback)
 }
 
 const open = name => {
+	name = name.toLowerCase()
 	const feedback = gameState.open(name)
+	console.log("ch", gameState.getCommandHistory())
 	updateGameState(gameState.getCommandHistory())
 	term(feedback)
 }
@@ -265,6 +274,10 @@ const showBankRemains = () => {
 	if (!updateMode) {
 		term(feedback)
 	}
+}
+
+const help = () => {
+	term(usage())
 }
 
 module.exports = {
