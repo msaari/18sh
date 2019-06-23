@@ -65,6 +65,16 @@ abbreviate the command and switch `<company>` and `<count>` if you wish.
 
 If you try to sell more than you have, 18SH will sell to zero.
 
+### GIVE
+	<player> give <amount>
+
+Gives the specified amount of cash to the player.
+
+### TAKE
+	<player> take <amount>
+
+Takes the specified amount of cash from the player.
+
 ### DIVIDENDS
 	<company> dividends <number|previous>
 
@@ -101,6 +111,18 @@ equivalent:
 	SECR val 67
 	SECR v 67
 
+### BANKSIZE
+	banksize <number>
+
+Sets the game bank size to the specified value. Once this is set, the status
+bar will show the money remaining in the bank (calculated as bank size minus
+the cash players have).
+
+### BANK
+	bank
+
+Shows the remaining cash in bank.
+
 ### HOLDINGS
 	holdings
 
@@ -112,6 +134,12 @@ This command prints out a list of share and cash holdings for all players.
 This command prints out a list of player net worth values. All share holdings
 are multiplied by the share values and the cash holdings are added to that. In
 order for this command to work, the values need to be set using `value`.
+
+### COMPANIES
+	companies
+
+This command prints out a list of companies with their share values and the
+share ownership.
 
 ### UNDO
 	undo
@@ -138,6 +166,11 @@ Lists all the games that are saved at the moment.
 Deletes the saved game with a given name. This is permanent and cannot be
 undone.
 
+### HELP
+	help
+
+A list of these commands.
+
 ### QUIT
 	quit
 
@@ -146,7 +179,7 @@ every command in the local configstore (`~/.config/configstore/18sh.json`).
 
 ## Changelog
 
-See changelog.md in the repo.
+See [changelog.md](changelog.md) in the repo.
 
 ## License
 
