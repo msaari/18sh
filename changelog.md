@@ -1,7 +1,7 @@
 # Changelog for 18SH
 
 ## TODO
-- Nothing on the list at the moment.
+- Handling company cash.
 
 ## 1.1.0 – 2019-06-23
 - Added: Instead of sum, dividends can be now paid as `prev` to repeat the
