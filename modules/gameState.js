@@ -1,7 +1,6 @@
 "use strict"
 
 const configstore = require("./configstore")
-const commandHistory = require("./commandHistory")
 const tables = require("./tables")
 
 const gameState = {
@@ -24,16 +23,16 @@ const getName = () => gameState.gameName
 /* Set, get and add to the command history. */
 
 const setCommandHistory = newCommandHistory => {
-	commandHistory.saveCommandHistory(newCommandHistory, gameState)
+	configstore.saveCommandHistory(newCommandHistory, gameState)
 }
 
 const getCommandHistory = () => {
-	const history = commandHistory.getCommandHistory(gameState)
+	const history = configstore.getCommandHistory(gameState)
 	return history
 }
 
 const addToHistory = command => {
-	commandHistory.addCommandToHistory(command, gameState)
+	configstore.addCommandToHistory(command, gameState)
 }
 
 /* Sets, gets and changes the share ownership data. */
@@ -121,7 +120,7 @@ const _getPlayers = () => {
 
 const payDividends = (payingCompany, value) => {
 	if (typeof value === "string" && value.substring(0, 2) === "PR") {
-		value = commandHistory.getPreviousDividend(payingCompany, gameState)
+		value = configstore.getPreviousDividend(payingCompany, gameState)
 	}
 	if (isNaN(value)) {
 		value = 0
