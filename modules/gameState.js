@@ -1,13 +1,8 @@
 "use strict"
 
-const Configstore = require("configstore")
-const nameGenerator = require("./generateName")
+const configstore = require("./configstore")
 const commandHistory = require("./commandHistory")
 const tables = require("./tables")
-
-/* eslint-disable no-process-env */
-const configstoreName = process.env.NODE_ENV === "test" ? "18sh-test" : "18sh"
-const conf = new Configstore(configstoreName)
 
 const gameState = {
 	gameName: "",
@@ -114,12 +109,12 @@ const _getPlayers = () => {
 	let players = []
 	const sharesOwned = getSharesOwned()
 	Object.keys(gameState.cash).forEach(player => {
-		if (!players[player]) players.push(player)
+		players.push(player)
 	})
 	Object.keys(sharesOwned).forEach(owner => {
-		if (!players[owner]) players.push(owner)
+		players.push(owner)
 	})
-	return players
+	return Array.from(new Set(players))
 }
 
 /* Dividend payments. */
@@ -188,74 +183,32 @@ const _calculatePlayerValue = player => {
 /* Game management: list, open, delete, create. */
 
 const open = name => {
-	let feedback = ""
-	if (conf.has(name)) {
-		gameState.gameName = name
-		feedback = `Opened game ^y'${name}'^\n`
-		conf.set("currentGameName", name)
-	} else {
-		feedback = `Game ^y'${name}'^ doesn't exist.\n`
-	}
-	return feedback
+	const response = configstore.open(name)
+	if (response.success) gameState.gameName = name
+	return response.feedback
 }
 
-const listGames = () => {
-	let feedback = ""
-	Object.keys(conf.all).forEach(key => {
-		if (key === "currentGameName") return
-		feedback += `${key}\n`
-	})
-	return feedback
-}
+const listGames = () => configstore.listGames()
 
 const deleteGame = name => {
-	let feedback = ""
-	if (conf.has(name)) {
-		conf.delete(name)
-		feedback = `Deleted ^y'${name}'^\n`
-		if (conf.get("currentGameName") === name) {
-			conf.delete("currentGameName")
-			gameState.gameName = null
-			feedback += `Deleted the active game, no game active at the moment.\n`
-		}
-	} else {
-		feedback = `^rGame ^y'${name}'^r doesn't exist.\n`
-	}
-	return feedback
+	const response = configstore.deleteGame(name)
+	if (response.success) gameState.gameName = null
+	return response.feedback
 }
 
-const newGame = gameName => {
-	let feedback = ""
-	if (conf.has(gameName)) {
-		feedback = `^rGame ^y'${gameName}'^ already exists!\n`
-	} else {
+const newGame = name => {
+	const response = configstore.newGame(name)
+	if (response.success) {
+		gameState.gameName = name
 		resetGameState()
-		gameState.gameName = gameName
-		conf.set("currentGameName", gameName)
-		feedback = `Game ^y'${gameName}'^ generated and active.\n`
 	}
-	return feedback
+	return response.feedback
 }
 
 const createOrLoadGame = () => {
-	let currentGameName = conf.get("currentGameName")
-	let feedback = ""
-	let mode = ""
-	if (!currentGameName) {
-		currentGameName = nameGenerator.generateName()
-		_setName(currentGameName)
-		conf.set("currentGameName", currentGameName)
-		mode = "create"
-		feedback = `Your game name is ^y'${getName()}'^\n`
-	} else if (currentGameName) {
-		feedback = `Continuing game ^y'${currentGameName}'^\n`
-		mode = "load"
-		_setName(currentGameName)
-	}
-	return {
-		feedback,
-		mode
-	}
+	const response = configstore.createOrLoadGame()
+	_setName(response.currentGameName)
+	return response
 }
 
 /* Generates the status bar contents. */
@@ -360,6 +313,7 @@ module.exports = {
 	statusBarContent,
 	getHoldingsTable,
 	getValuesTable,
+	getCompanyTable,
 	resetGameState,
 	changeCash,
 	setBankSize,
