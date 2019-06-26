@@ -22,12 +22,12 @@ const holdingsTable = (companies, sharesOwned, cash) => {
 	return table
 }
 
-const valuesTable = (companies, sharesOwned, values, cash) => {
+const valuesTable = (players, companies, sharesOwned, values, cash) => {
 	const table = new Table()
 	const headerRow = ["Player", "Cash"].concat(companies).concat(["Total"])
 	table.push(headerRow)
 
-	Object.keys(sharesOwned).forEach(owner => {
+	players.forEach(owner => {
 		if (!cash[owner]) cash[owner] = 0
 		let row = [owner, cash[owner]]
 		let money = cash[owner]

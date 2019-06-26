@@ -4,8 +4,11 @@
 - Half dividends.
 - SR/OR markers in the log to get values by SR/OR?
 
-## Unreleased
-- Added: Companies can now have cash as well.
+## Unreleased (available for testing in `master`)
+- Added: Companies can now have cash as well. Company cash will appear in the
+status bar.
+- Added: Companies can own shares.
+- Fixed: Status bar works better if gets long enough to cover multiple lines.
 
 ## 1.1.1 – 2019-06-23
 - Removed: One console.log() that was left in the code.

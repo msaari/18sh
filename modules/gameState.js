@@ -131,7 +131,11 @@ const _getPlayers = () => {
 	Object.keys(sharesOwned).forEach(owner => {
 		players.push(owner)
 	})
-	return Array.from(new Set(players))
+	let playerSet = new Set(players)
+	_getAllCompanies().forEach(company => {
+		playerSet.delete(company)
+	})
+	return Array.from(playerSet)
 }
 
 /* Dividend payments. */
@@ -293,12 +297,13 @@ const getHoldingsTable = () => {
 }
 
 const getValuesTable = () => {
+	const players = _getPlayers()
 	const companies = _getAllCompanies()
 	const sharesOwned = getSharesOwned()
 	const values = _getValue()
 	const cash = _getCash()
 
-	return tables.valuesTable(companies, sharesOwned, values, cash)
+	return tables.valuesTable(players, companies, sharesOwned, values, cash)
 }
 
 const getCompanyTable = () => {
