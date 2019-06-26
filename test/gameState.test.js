@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 "use strict"
 
 const expect = require("chai").expect
@@ -248,6 +250,17 @@ describe("GameState", () => {
 		})
 	})
 
+	describe("float", () => {
+		it("should float a company correctly", () => {
+			const startingCash = 710
+			gameState.float("NBR", startingCash)
+			expect(gameState._getCash("NBR")).to.equal(startingCash)
+
+			gameState.float("CR", startingCash)
+			expect(gameState._getCash("CR")).to.equal(startingCash)
+		})
+	})
+
 	describe("getCompanyTable", () => {
 		it("should create a correct company values table", () => {
 			gameState.setValue("NBR", 134)
@@ -256,13 +269,22 @@ describe("GameState", () => {
 			const table = gameState.getCompanyTable()
 			expect(table[0]).to.deep.equal([
 				"Company",
+				"Cash",
 				"Value",
 				"MIKKO",
 				"NOOA",
 				"ANNI"
 			])
-			expect(table[1]).to.deep.equal(["NBR", 134, 2, 0, 1])
-			expect(table[2]).to.deep.equal(["CR", 100, 4, 2, 0])
+			expect(table[1]).to.deep.equal(["NBR", 710, 134, 2, 0, 1])
+			expect(table[2]).to.deep.equal(["CR", 710, 100, 4, 2, 0])
+		})
+
+		it("should work with an unfloated comapny", () => {
+			gameState.changeSharesOwned("MIKKO", "M&C", 4)
+			gameState.addToHistory("MIKKO buys M&C 4")
+
+			const table = gameState.getCompanyTable()
+			expect(table[3]).to.deep.equal(["M&C", 0, 0, 4, 0, 0])
 		})
 	})
 
@@ -293,6 +315,20 @@ describe("GameState", () => {
 			gameState.changeCash("MIKKO", cashChange)
 			expect(gameState._getCash("MIKKO")).to.equal(cashBefore + cashChange)
 		})
+
+		it("should handle company cash addition correctly", () => {
+			const cashBefore = gameState._getCash("NBR")
+			let cashChange = 10
+			gameState.changeCash("NBR", cashChange)
+			expect(gameState._getCash("NBR")).to.equal(cashBefore + cashChange)
+		})
+
+		it("should handle company cash substraction correctly", () => {
+			const cashBefore = gameState._getCash("NBR")
+			let cashChange = -10
+			gameState.changeCash("NBR", cashChange)
+			expect(gameState._getCash("NBR")).to.equal(cashBefore + cashChange)
+		})
 	})
 
 	describe("getBankRemains and setBankSize", () => {
@@ -301,12 +337,26 @@ describe("GameState", () => {
 			gameState.resetGameState()
 			gameState.setBankSize(bankSize)
 			expect(gameState._getBankRemains()).to.equal(bankSize)
+
+			const statusBar = gameState.statusBarContent()
+			expect(statusBar).to.include(`BANK $${bankSize}`)
 		})
 
 		it("should adjust the bank size based on player cash", () => {
 			const takeFromBank = 1000
 			gameState.changeCash("MIKKO", takeFromBank)
 			expect(gameState._getBankRemains()).to.equal(bankSize - takeFromBank)
+
+			const statusBar = gameState.statusBarContent()
+			expect(statusBar).to.include(`BANK $${bankSize - takeFromBank}`)
+		})
+
+		it("floating should adjust the bank size", () => {
+			const bankBefore = gameState._getBankRemains()
+			const floatMoney = 670
+			gameState.float("LSWR", floatMoney)
+
+			expect(gameState._getBankRemains()).to.equal(bankBefore - floatMoney)
 		})
 	})
 })

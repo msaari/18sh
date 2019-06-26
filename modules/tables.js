@@ -46,14 +46,16 @@ const valuesTable = (companies, sharesOwned, values, cash) => {
 	return table
 }
 
-const companyTable = (companies, sharesOwned, values, players) => {
+const companyTable = (companies, sharesOwned, values, players, companyCash) => {
 	const table = new Table()
-	const headerRow = ["Company", "Value"].concat(players)
+	const headerRow = ["Company", "Cash", "Value"].concat(players)
 	table.push(headerRow)
 
 	companies.sort((companyA, companyB) => values[companyB] - values[companyA])
 	companies.forEach(company => {
-		let row = [company, values[company]]
+		const cash = companyCash[company] ? companyCash[company] : 0
+		const value = values[company] ? values[company] : 0
+		let row = [company, cash, value]
 		players.forEach(player => {
 			let companySharesOwned = sharesOwned[player][company]
 			if (companySharesOwned) {

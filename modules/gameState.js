@@ -7,6 +7,7 @@ const gameState = {
 	gameName: "",
 	sharesOwned: [],
 	cash: [],
+	companyCash: [],
 	values: [],
 	bankSize: null,
 	undid: ""
@@ -87,19 +88,36 @@ const _getCompanyOwners = company => {
 	return owners
 }
 
-/* Sets and gets player cash. */
+/* Sets and gets player or company cash. */
 
-const _getCash = (player = null) => {
-	if (player) {
-		return gameState.cash[player] ? gameState.cash[player] : 0
+const _getCash = (target = null) => {
+	if (target) {
+		if (gameState.companyCash[target]) return gameState.companyCash[target]
+		if (gameState.cash[target]) return gameState.cash[target]
+		return 0
 	}
 	return gameState.cash
 }
 
-const changeCash = (player, sum) => {
-	if (isNaN(gameState.cash[player])) gameState.cash[player] = 0
-	gameState.cash[player] += parseInt(sum)
-	return `${player} now has ^y$${gameState.cash[player]}^\n`
+const _getAllCash = () => {
+	const cash = {
+		..._getCash(),
+		...gameState.companyCash
+	}
+	return cash
+}
+
+const changeCash = (target, sum) => {
+	let feedback = ""
+	if (gameState.companyCash[target]) {
+		gameState.companyCash[target] += parseInt(sum)
+		feedback = `${target} now has ^y$${gameState.companyCash[target]}^\n`
+	} else {
+		if (isNaN(gameState.cash[target])) gameState.cash[target] = 0
+		gameState.cash[target] += parseInt(sum)
+		feedback = `${target} now has ^y$${gameState.cash[target]}^\n`
+	}
+	return feedback
 }
 
 /* Gets all players in the game. */
@@ -143,6 +161,7 @@ const payDividends = (payingCompany, value) => {
 const resetGameState = () => {
 	gameState.sharesOwned = []
 	gameState.cash = []
+	gameState.companyCash = []
 	gameState.values = []
 	gameState.bankSize = null
 }
@@ -218,18 +237,31 @@ const statusBarContent = () => {
 		const bank = _getBankRemains()
 		barContent += `\tBANK $${bank}`
 	} else {
-		const totalCash = Object.keys(_getCash()).reduce((total, player) => {
+		const totalCash = Object.keys(_getAllCash()).reduce((total, player) => {
 			total += _getCash(player)
 			return total
 		}, 0)
 		barContent += `\tTOTAL $${totalCash}`
 	}
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		const value = _calculatePlayerValue(owner)
-		const cash = _getCash(owner)
-		barContent += `\t${owner} $${cash} ($${value})`
+	_getPlayers().forEach(player => {
+		const value = _calculatePlayerValue(player)
+		const cash = _getCash(player)
+		barContent += `\t${player} $${cash} ($${value})`
+	})
+	barContent += "\t"
+	_getAllCompanies().forEach(company => {
+		const value = _getValue(company)
+		const cash = _getCash(company)
+		barContent += `\t${company} $${cash} ($${value})`
 	})
 	return barContent
+}
+
+/* Floats a company. */
+
+const float = (company, cash) => {
+	gameState.companyCash[company] = cash
+	return `Floated ^y${company}^ with ^y${cash}^:.\n`
 }
 
 /* Gets all companies in play. */
@@ -241,6 +273,10 @@ const _getAllCompanies = () => {
 		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
 			allCompanies.push(company)
 		})
+	})
+
+	Object.keys(gameState.companyCash).forEach(company => {
+		allCompanies.push(company)
 	})
 
 	return Array.from(new Set(allCompanies))
@@ -270,8 +306,15 @@ const getCompanyTable = () => {
 	const sharesOwned = getSharesOwned()
 	const values = _getValue()
 	const players = _getPlayers()
+	const companyCash = gameState.companyCash
 
-	return tables.companyTable(companies, sharesOwned, values, players)
+	return tables.companyTable(
+		companies,
+		sharesOwned,
+		values,
+		players,
+		companyCash
+	)
 }
 
 /* Bank size management. */
@@ -282,12 +325,14 @@ const setBankSize = size => {
 }
 
 const _getBankRemains = () => {
-	const cashReserves = _getCash()
+	const cashReserves = {
+		..._getCash(),
+		...gameState.companyCash
+	}
 	const playerCash = Object.keys(cashReserves).reduce((total, player) => {
 		total += cashReserves[player]
 		return total
 	}, 0)
-
 	return gameState.bankSize - playerCash
 }
 
@@ -318,6 +363,7 @@ module.exports = {
 	setBankSize,
 	getBankRemains,
 	setValue,
+	float,
 	_getBankRemains,
 	_getCash,
 	_setName,

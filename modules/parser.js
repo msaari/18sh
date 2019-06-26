@@ -233,6 +233,20 @@ const parse = command => {
 					quantity
 				}
 				break
+			case "f":
+			case "fl":
+			case "flo":
+			case "floa":
+			case "float":
+				quantity = parseInt(object)
+				object = null
+				result = {
+					verb: "float",
+					object,
+					subject,
+					quantity
+				}
+				break
 			default:
 				result = {
 					verb: null,

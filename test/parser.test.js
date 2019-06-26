@@ -127,6 +127,20 @@ describe("Parser", () => {
 				quantity: 100
 			})
 		})
+		it("should return correct for float", () => {
+			expect(parser("cr float 710")).to.include({
+				verb: "float",
+				object: null,
+				subject: "CR",
+				quantity: 710
+			})
+			expect(parser("cr f 710")).to.include({
+				verb: "float",
+				object: null,
+				subject: "CR",
+				quantity: 710
+			})
+		})
 		it("should return correct for dividends", () => {
 			expect(parser("ger dividends 10")).to.include({
 				verb: "dividend",

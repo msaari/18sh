@@ -15,9 +15,13 @@ Game actions:
 \t<player> ^Wsell^ <company> <quantity> – Have player sell company shares.
 \t<company> ^Wdividend^ <amount> – Have company pay a dividend to shareholders.
 \t<company> ^Wvalue^ <amount> – Set company share value.
-\t<player> ^Wgive^ <amount> – Give player cash.
-\t<player> ^Wtake^ <amount> – Take cash from a player.
+\t<company> ^Wfloat^ <amount> – Start a company and give it cash from the bank.
+\t<player|company> ^Wgive^ <amount> – Give cash to a player or a company[1].
+\t<player|company> ^Wtake^ <amount> – Take cash from a player or a company[1].
 \t^Wbanksize^ <amount> – Set the bank size.
+
+1: In order to adjust company cash, company must be floated first. Otherwise
+18SH will assume the target is a player.
 
 Game management:
 \t^WlistGames^ – List all available games.

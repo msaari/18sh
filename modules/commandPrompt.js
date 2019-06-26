@@ -152,6 +152,10 @@ const perform = (command, silent = false) => {
 			take(action.subject, action.quantity)
 			addToHistory = true
 			break
+		case "float":
+			float(action.subject, action.quantity)
+			addToHistory = true
+			break
 		case "banksize":
 			bankSize(action.object)
 			addToHistory = true
@@ -247,15 +251,22 @@ const open = name => {
 	term(feedback)
 }
 
-const give = (player, quantity) => {
-	const feedback = gameState.changeCash(player, quantity)
+const give = (target, quantity) => {
+	const feedback = gameState.changeCash(target, quantity)
 	if (!updateMode) {
 		term(feedback)
 	}
 }
 
-const take = (player, quantity) => {
-	const feedback = gameState.changeCash(player, quantity * -1)
+const take = (target, quantity) => {
+	const feedback = gameState.changeCash(target, quantity * -1)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const float = (company, cash) => {
+	const feedback = gameState.float(company, cash)
 	if (!updateMode) {
 		term(feedback)
 	}
