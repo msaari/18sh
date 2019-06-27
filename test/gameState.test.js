@@ -69,15 +69,26 @@ describe("GameState", () => {
 	})
 
 	describe("dividend", () => {
-		it("should pay correct dividends", () => {
-			gameState.changeSharesOwned("MIKKO", "CR", 4)
-			gameState.changeSharesOwned("NOOA", "CR", 2)
+		let mikkoCash = 0
+		let nooaCash = 0
 
-			gameState.payDividends("CR", 10)
+		const mikkoShares = 4
+		const nooaShares = 2
+
+		const dividend = 10
+
+		it("should pay correct dividends", () => {
+			gameState.changeSharesOwned("MIKKO", "CR", mikkoShares)
+			gameState.changeSharesOwned("NOOA", "CR", nooaShares)
+
+			gameState.payDividends("CR", dividend)
 			gameState.addToHistory("CR dividend 10")
 
-			expect(gameState._getCash("MIKKO")).to.equal(40)
-			expect(gameState._getCash("NOOA")).to.equal(20)
+			mikkoCash += dividend * mikkoShares
+			nooaCash += dividend * nooaShares
+
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 		})
 
 		it("should repay previous dividends correctly", () => {
@@ -88,20 +99,54 @@ describe("GameState", () => {
 			gameState.payDividends("CR", "PREV")
 			gameState.addToHistory("CR dividend PREV")
 
-			expect(gameState._getCash("MIKKO")).to.equal(80)
-			expect(gameState._getCash("NOOA")).to.equal(40)
+			mikkoCash += dividend * mikkoShares
+			nooaCash += dividend * nooaShares
+
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 
 			gameState.payDividends("CR", "PREV")
 
-			expect(gameState._getCash("MIKKO")).to.equal(120)
-			expect(gameState._getCash("NOOA")).to.equal(60)
+			mikkoCash += dividend * mikkoShares
+			nooaCash += dividend * nooaShares
+
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 		})
 
 		it("should handle non-number values correctly (ie. 0)", () => {
 			gameState.payDividends("CR", "NOT_A_NUMBER")
 
-			expect(gameState._getCash("MIKKO")).to.equal(120)
-			expect(gameState._getCash("NOOA")).to.equal(60)
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
+		})
+
+		const halfDividendTotal = 230
+		const halfDividendPerShare = 12
+		const halfDividendForCompany = 110
+
+		it("should handle half dividends", () => {
+			gameState.payHalfDividends("CR", halfDividendTotal)
+			gameState.addToHistory("CR halfdividend 230")
+
+			mikkoCash += halfDividendPerShare * mikkoShares
+			nooaCash += halfDividendPerShare * nooaShares
+
+			expect(gameState._getCash("CR", halfDividendForCompany))
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
+		})
+
+		it("should repay previous half dividends correctly", () => {
+			gameState.payHalfDividends("CR", "PREV")
+			gameState.addToHistory("CR halfdividend PREV")
+
+			mikkoCash += halfDividendPerShare * mikkoShares
+			nooaCash += halfDividendPerShare * nooaShares
+
+			expect(gameState._getCash("CR", halfDividendForCompany))
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 		})
 	})
 
@@ -215,7 +260,7 @@ describe("GameState", () => {
 			gameState.addToHistory("CR dividend 10")
 
 			const table = gameState.getHoldingsTable()
-			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "NBR"])
+			expect(table[0]).to.deep.equal(["Owner", "Cash", "CR", "NBR"])
 			expect(table[1]).to.deep.equal(["MIKKO", 40, 4, 2])
 			expect(table[2]).to.deep.equal(["NOOA", 20, 2, 0])
 			expect(table[3]).to.deep.equal(["ANNI", 0, 0, 1])

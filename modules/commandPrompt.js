@@ -140,6 +140,10 @@ const perform = (command, silent = false) => {
 			dividend(action.subject, action.object)
 			addToHistory = true
 			break
+		case "halfdividend":
+			halfdividend(action.subject, action.object)
+			addToHistory = true
+			break
 		case "value":
 			value(action.subject, action.object)
 			addToHistory = true
@@ -215,6 +219,13 @@ const companies = () => {
 
 const dividend = (payingCompany, value) => {
 	const feedback = gameState.payDividends(payingCompany, value)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const halfdividend = (payingCompany, value) => {
+	const feedback = gameState.payHalfDividends(payingCompany, value)
 	if (!updateMode) {
 		term(feedback)
 	}

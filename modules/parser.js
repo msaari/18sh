@@ -194,6 +194,31 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "h":
+			case "ha":
+			case "hal":
+			case "half":
+			case "halfd":
+			case "halfdi":
+			case "halfdiv":
+			case "halfdivi":
+			case "halfdivid":
+			case "halfdivide":
+			case "halfdividen":
+			case "halfdividend":
+			case "halfdividends":
+				if (isNaN(parseInt(object))) {
+					object = object.toUpperCase()
+				} else {
+					object = parseInt(object)
+				}
+				result = {
+					verb: "halfdividend",
+					object,
+					subject,
+					quantity: 0
+				}
+				break
 			case "v":
 			case "va":
 			case "val":

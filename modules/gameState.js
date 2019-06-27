@@ -52,20 +52,14 @@ const changeSharesOwned = (actor, company, quantity) => {
 
 	const quantityInt = parseInt(quantity)
 	if (quantityInt < 0 && Math.abs(quantityInt) > sharesOwned[actor][company]) {
-		feedback = `${actor} only has ${
-			sharesOwned[actor][company]
-		}, selling all.\n`
+		feedback = `${actor} only has ${sharesOwned[actor][company]}, selling all.\n`
 		sharesOwned[actor][company] = 0
 	} else if (!isNaN(quantityInt)) {
 		sharesOwned[actor][company] += quantityInt
 		if (quantityInt > 0)
-			feedback = `${actor} buys ${company} and now has ${
-				sharesOwned[actor][company]
-			}.\n`
+			feedback = `${actor} buys ${company} and now has ${sharesOwned[actor][company]}.\n`
 		if (quantityInt < 0)
-			feedback = `${actor} sells ${company} and now has ${
-				sharesOwned[actor][company]
-			}.\n`
+			feedback = `${actor} sells ${company} and now has ${sharesOwned[actor][company]}.\n`
 	}
 
 	setSharesOwned(sharesOwned)
@@ -144,19 +138,34 @@ const payDividends = (payingCompany, value) => {
 	if (typeof value === "string" && value.substring(0, 2) === "PR") {
 		value = configstore.getPreviousDividend(payingCompany, gameState)
 	}
-	if (isNaN(value)) {
-		value = 0
-	}
+	if (isNaN(value)) value = 0
 
 	let feedback = ""
 	const sharesOwned = _getCompanyOwners(payingCompany)
 	Object.keys(sharesOwned).forEach(player => {
 		const moneyEarned = sharesOwned[player] * value
 		changeCash(player, moneyEarned)
-		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${
-			gameState.sharesOwned[player][payingCompany]
-		} shares.\n`
+		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${gameState.sharesOwned[player][payingCompany]} shares.\n`
 	})
+	return feedback
+}
+
+const payHalfDividends = (payingCompany, totalSum) => {
+	let feedback = ""
+	if (typeof totalSum === "string" && totalSum.substring(0, 2) === "PR") {
+		totalSum = configstore.getPreviousHalfDividend(payingCompany, gameState)
+	}
+	if (isNaN(totalSum)) totalSum = 0
+
+	const halfFloored = Math.floor(totalSum / 20)
+	const companyRetains = halfFloored * 10
+	const perShare = (totalSum - companyRetains) / 10
+
+	changeCash(payingCompany, companyRetains)
+
+	feedback = `${payingCompany} retains ^y$${companyRetains}^:.\n`
+	feedback += payDividends(payingCompany, perShare)
+
 	return feedback
 }
 
@@ -354,6 +363,7 @@ module.exports = {
 	getSharesOwned,
 	changeSharesOwned,
 	payDividends,
+	payHalfDividends,
 	deleteGame,
 	newGame,
 	listGames,

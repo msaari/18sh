@@ -105,9 +105,10 @@ const saveCommandHistory = (commandHistory, gameState) => {
 	conf.set(gameState.gameName, commandHistory)
 }
 
-const getPreviousDividend = (company, gameState) => {
+const _getPreviousDividend = (company, gameState, mode) => {
+	if (mode !== "dividend" && mode !== "halfdividend") mode = "dividend"
 	const commandHistory = getCommandHistory(gameState)
-	const commandStart = `${company} dividend `
+	const commandStart = `${company} ${mode} `
 	let dividend = commandHistory.reduce((accumulator, command) => {
 		if (command.substr(0, commandStart.length) === commandStart) {
 			let dividend = command.replace(commandStart, "")
@@ -118,6 +119,12 @@ const getPreviousDividend = (company, gameState) => {
 	return dividend
 }
 
+const getPreviousDividend = (company, gameState) =>
+	_getPreviousDividend(company, gameState, "dividend")
+
+const getPreviousHalfDividend = (company, gameState) =>
+	_getPreviousDividend(company, gameState, "halfdividend")
+
 module.exports = {
 	open,
 	listGames,
@@ -125,6 +132,7 @@ module.exports = {
 	newGame,
 	createOrLoadGame,
 	getPreviousDividend,
+	getPreviousHalfDividend,
 	getCommandHistory,
 	saveCommandHistory,
 	addCommandToHistory

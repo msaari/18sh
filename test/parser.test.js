@@ -166,6 +166,24 @@ describe("Parser", () => {
 				object: "PREV",
 				quantity: 0
 			})
+			expect(parser("ger halfdividends 100")).to.include({
+				verb: "halfdividend",
+				subject: "GER",
+				object: 100,
+				quantity: 0
+			})
+			expect(parser("ger h 100")).to.include({
+				verb: "halfdividend",
+				subject: "GER",
+				object: 100,
+				quantity: 0
+			})
+			expect(parser("ger h prev")).to.include({
+				verb: "halfdividend",
+				subject: "GER",
+				object: "PREV",
+				quantity: 0
+			})
 		})
 		it("should return correct for value", () => {
 			expect(parser("ger value 10")).to.include({
