@@ -1,13 +1,14 @@
 # Changelog for 18SH
 
 ## TODO
-- Half dividends.
-- SR/OR markers in the log to get values by SR/OR?
+- SR/OR markers in the log to get values by SR/OR (maybe).
 
 ## Unreleased (available for testing in `master`)
 - Added: Companies can now have cash as well. Company cash will appear in the
 status bar.
 - Added: Companies can own shares.
+- Added: New command `halfdividend` pays half dividends, rounded to the favour
+of shareholders.
 - Fixed: Status bar works better if gets long enough to cover multiple lines.
 
 ## 1.1.1 – 2019-06-23
