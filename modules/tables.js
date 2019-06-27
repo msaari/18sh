@@ -4,12 +4,13 @@ const Table = require("cli-table")
 
 const holdingsTable = (companies, sharesOwned, cash) => {
 	const table = new Table()
-	const headerRow = ["Player", "Cash"].concat(companies)
+	const headerRow = ["Owner", "Cash"].concat(companies)
 	table.push(headerRow)
 
 	Object.keys(sharesOwned).forEach(owner => {
-		if (!cash[owner]) cash[owner] = 0
-		let row = [owner, cash[owner]]
+		let rowCash = 0
+		if (cash[owner]) rowCash = cash[owner]
+		let row = [owner, rowCash]
 		companies.forEach(company => {
 			if (sharesOwned[owner][company] > 0) {
 				row.push(sharesOwned[owner][company])

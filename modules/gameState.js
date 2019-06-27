@@ -291,7 +291,7 @@ const _getAllCompanies = () => {
 const getHoldingsTable = () => {
 	const companies = _getAllCompanies()
 	const sharesOwned = getSharesOwned()
-	const cash = _getCash()
+	const cash = _getAllCash()
 
 	return tables.holdingsTable(companies, sharesOwned, cash)
 }
