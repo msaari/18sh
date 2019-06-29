@@ -10,7 +10,7 @@ var updateMode = false
 
 const initialize = () => {
 	term.fullscreen()
-	term.nextLine()
+	term.nextLine(term.height - 4)
 	const response = gameState.createOrLoadGame()
 	if (response.mode === "load") {
 		updateGameState(gameState.getCommandHistory())
@@ -187,7 +187,7 @@ const perform = (command, silent = false) => {
 		if (action.quantity) normalizedCommand += `${action.quantity}`
 		gameState.addToHistory(normalizedCommand.trim())
 	}
-	updateStatusBar()
+	if (!updateMode) updateStatusBar()
 }
 
 const buy = (buyer, object, count = 1) => {
