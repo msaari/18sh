@@ -4,15 +4,15 @@
 - SR/OR markers in the log to get values by SR/OR (maybe).
 - Rename GIVE and TAKE, they're illogical.
 - Doing `mikko b gt`, `mikko take 100`, `gt s gt`, `gt give 100` when playing 1846 and buying shares from a company treasure is annoying. It should be possible to do `mikko buy gt from gt 100` or something like that and have the whole transaction happen at once.
-- Move company statuses to a different row on the status bar and set that row to a different color.
 
-## Unreleased (available for testing in `master`)
+## 1.2.0 – 2019-06-29
 - Added: Companies can now have cash as well. Company cash will appear in the
-status bar.
-- Added: Companies can own shares.
+status bar, on a separate row with a different background color.
+- Added: Companies can own shares and get paid dividends.
 - Added: New command `halfdividend` pays half dividends, rounded to the favour
 of shareholders.
 - Fixed: Status bar works better if gets long enough to cover multiple lines.
+- Fixed: No more `COMPANY pays PLAYER $0 for undefined shares.` notices.
 
 ## 1.1.1 – 2019-06-23
 - Removed: One console.log() that was left in the code.

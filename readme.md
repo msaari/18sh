@@ -41,12 +41,14 @@ you'll finally see the end results.
 ## Commands
 
 ### BUY
-	<player> buys <company> <count>
+	<player|company> buys <company> <count>
 
 There's no need to introduce player or company names: just use any
 abbreviations you like, as long as you always refer to the same player or
 company with the same abbreviation. The names are case insensitive (and always
 converted to upper case anyway).
+
+Companies can also buy shares.
 
 You can abbreviate the command to `b`, `bu` or `buy` and switch `<company>`
 and `<count>` if desired.
@@ -58,7 +60,7 @@ All of these commands have Mikko buy two LNWR shares:
 	Mikko b 2 LNWR
 
 ### SELL
-	<player> sells <company> <count>
+	<player|company> sells <company> <count>
 
 The opposite of buying shares. The same principles apply to `sell`: you can
 abbreviate the command and switch `<company>` and `<count>` if you wish.
@@ -66,14 +68,16 @@ abbreviate the command and switch `<company>` and `<count>` if you wish.
 If you try to sell more than you have, 18SH will sell to zero.
 
 ### GIVE
-	<player> give <amount>
+	<player|company> give <amount>
 
-Gives the specified amount of cash to the player.
+Gives the specified amount of cash to the player or company. Company must be
+floated before its cash can be handled (see `float` below).
 
 ### TAKE
-	<player> take <amount>
+	<player|company> take <amount>
 
-Takes the specified amount of cash from the player.
+Takes the specified amount of cash from the player or company. Company must be
+floated before its cash can be handled (see `float` below).
 
 ### DIVIDENDS
 	<company> dividends <number|previous>
@@ -99,6 +103,27 @@ shortened:
 	GER dividend previous
 	GER pays prev
 	GER d pr
+
+### HALF DIVIDENDS
+	<company> halfdividends <number>
+
+Distributes half dividends where half the sum is paid to the company and the
+rest is distributed to shares, rounded up for the benefit of the shareholders.
+The `<number>` is not the per-share dividend, but the total sum to distribute.
+Thus if you do
+
+	NYC halfdividends 290
+
+NYC will retain 140 and each NYC share is paid 15.
+
+### FLOAT
+	<company> float <number>
+
+Starts up a company and sets its cash to `<number>`. This needs to be done
+first if you want to track company cash, because otherwise `<company> give
+<sum>` will not work correctly but will instead assume `<company>` is a player.
+
+	NYC float 630
 
 ### VALUE
 	<company> value <number>
