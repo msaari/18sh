@@ -77,10 +77,12 @@ describe("GameState", () => {
 
 		const dividend = 10
 
-		it("should pay correct dividends", () => {
-			gameState.changeSharesOwned("MIKKO", "CR", mikkoShares)
-			gameState.changeSharesOwned("NOOA", "CR", nooaShares)
+		gameState.changeSharesOwned("MIKKO", "CR", mikkoShares)
+		gameState.changeSharesOwned("NOOA", "CR", nooaShares)
+		gameState.changeSharesOwned("ANNI", "NBR", nooaShares)
+		gameState.changeSharesOwned("CR", "CR", nooaShares)
 
+		it("should pay correct dividends", () => {
 			gameState.payDividends("CR", dividend)
 			gameState.addToHistory("CR dividend 10")
 
@@ -105,13 +107,14 @@ describe("GameState", () => {
 			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
 			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 
-			gameState.payDividends("CR", "PREV")
+			const feedback = gameState.payDividends("CR", "PREV")
 
 			mikkoCash += dividend * mikkoShares
 			nooaCash += dividend * nooaShares
 
 			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
 			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
+			expect(feedback).to.not.include("undefined")
 		})
 
 		it("should handle non-number values correctly (ie. 0)", () => {
@@ -341,7 +344,7 @@ describe("GameState", () => {
 			players.forEach(player => {
 				const value = gameState._calculatePlayerValue(player)
 				const cash = gameState._getCash(player)
-				expect(statusBar).to.include(`${player} $${cash} ($${value})`)
+				expect(statusBar.players).to.include(`${player} $${cash} ($${value})`)
 			})
 		})
 	})
@@ -384,7 +387,7 @@ describe("GameState", () => {
 			expect(gameState._getBankRemains()).to.equal(bankSize)
 
 			const statusBar = gameState.statusBarContent()
-			expect(statusBar).to.include(`BANK $${bankSize}`)
+			expect(statusBar.players).to.include(`BANK $${bankSize}`)
 		})
 
 		it("should adjust the bank size based on player cash", () => {
@@ -393,7 +396,7 @@ describe("GameState", () => {
 			expect(gameState._getBankRemains()).to.equal(bankSize - takeFromBank)
 
 			const statusBar = gameState.statusBarContent()
-			expect(statusBar).to.include(`BANK $${bankSize - takeFromBank}`)
+			expect(statusBar.players).to.include(`BANK $${bankSize - takeFromBank}`)
 		})
 
 		it("floating should adjust the bank size", () => {

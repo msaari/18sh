@@ -145,7 +145,7 @@ const payDividends = (payingCompany, value) => {
 	Object.keys(sharesOwned).forEach(player => {
 		const moneyEarned = sharesOwned[player] * value
 		changeCash(player, moneyEarned)
-		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${gameState.sharesOwned[player][payingCompany]} shares.\n`
+		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${sharesOwned[player]} shares.\n`
 	})
 	return feedback
 }
@@ -245,27 +245,29 @@ const createOrLoadGame = () => {
 /* Generates the status bar contents. */
 
 const statusBarContent = () => {
-	let barContent = ""
+	let barContent = {
+		players: "",
+		companies: ""
+	}
 	if (gameState.bankSize) {
 		const bank = _getBankRemains()
-		barContent += `\tBANK $${bank}`
+		barContent.players += `\tBANK $${bank}`
 	} else {
 		const totalCash = Object.keys(_getAllCash()).reduce((total, player) => {
 			total += _getCash(player)
 			return total
 		}, 0)
-		barContent += `\tTOTAL $${totalCash}`
+		barContent.players += `\tTOTAL $${totalCash}`
 	}
 	_getPlayers().forEach(player => {
 		const value = _calculatePlayerValue(player)
 		const cash = _getCash(player)
-		barContent += `\t${player} $${cash} ($${value})`
+		barContent.players += `\t${player} $${cash} ($${value})`
 	})
-	barContent += "\t"
 	_getAllCompanies().forEach(company => {
 		const value = _getValue(company)
 		const cash = _getCash(company)
-		barContent += `\t${company} $${cash} ($${value})`
+		barContent.companies += `${company} $${cash} ($${value})\t`
 	})
 	return barContent
 }
