@@ -13,7 +13,7 @@ const initialize = () => {
 	term.nextLine(term.height - 4)
 	const response = gameState.createOrLoadGame()
 	if (response.mode === "load") {
-		updateGameState(gameState.getCommandHistory())
+		_updateGameState(gameState.getCommandHistory())
 	}
 	term(response.feedback)
 	updateStatusBar()
@@ -23,7 +23,7 @@ const updateStatusBar = () => {
 	statusBar(gameState.statusBarContent())
 }
 
-const updateGameState = commandHistoryArray => {
+const _updateGameState = commandHistoryArray => {
 	gameState.resetGameState()
 	const silent = true
 	if (commandHistoryArray) {
@@ -31,10 +31,12 @@ const updateGameState = commandHistoryArray => {
 	}
 }
 
+const _getGameState = () => gameState
+
 const undo = () => {
 	var commandHistoryArray = gameState.getCommandHistory()
 	var undid = commandHistoryArray.pop()
-	updateGameState(commandHistoryArray)
+	_updateGameState(commandHistoryArray)
 	gameState.setCommandHistory(commandHistoryArray)
 	return undid
 }
@@ -258,7 +260,7 @@ const newGame = name => {
 const open = name => {
 	name = name.toLowerCase()
 	const feedback = gameState.open(name)
-	updateGameState(gameState.getCommandHistory())
+	_updateGameState(gameState.getCommandHistory())
 	term(feedback)
 }
 
@@ -304,5 +306,7 @@ const help = () => {
 module.exports = {
 	initialize,
 	commandPrompt,
-	perform
+	perform,
+	_updateGameState,
+	_getGameState
 }
