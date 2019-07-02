@@ -131,7 +131,13 @@ const perform = (command, silent = false) => {
 			addToHistory = false
 			break
 		case "buy":
-			buy(action.subject, action.object, action.quantity)
+			buy(
+				action.subject,
+				action.object,
+				action.quantity,
+				action.price,
+				action.source
+			)
 			addToHistory = true
 			break
 		case "sell":
@@ -151,11 +157,11 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "give":
-			give(action.subject, action.quantity)
+			give(action.subject, action.object, action.quantity)
 			addToHistory = true
 			break
-		case "take":
-			take(action.subject, action.quantity)
+		case "cash":
+			cash(action.subject, action.quantity)
 			addToHistory = true
 			break
 		case "float":
@@ -192,8 +198,8 @@ const perform = (command, silent = false) => {
 	if (!updateMode) updateStatusBar()
 }
 
-const buy = (buyer, object, count = 1) => {
-	const feedback = gameState.changeSharesOwned(buyer, object, count)
+const buy = (buyer, object, count = 1, price = null, source = null) => {
+	const feedback = gameState.buyShares(buyer, object, count, price, source)
 	if (!updateMode) {
 		term(feedback)
 	}
@@ -264,15 +270,15 @@ const open = name => {
 	term(feedback)
 }
 
-const give = (target, quantity) => {
-	const feedback = gameState.changeCash(target, quantity)
+const give = (subject, object, quantity) => {
+	const feedback = gameState.moveCash(subject, object, quantity)
 	if (!updateMode) {
 		term(feedback)
 	}
 }
 
-const take = (target, quantity) => {
-	const feedback = gameState.changeCash(target, quantity * -1)
+const cash = (target, quantity) => {
+	const feedback = gameState.changeCash(target, quantity)
 	if (!updateMode) {
 		term(feedback)
 	}

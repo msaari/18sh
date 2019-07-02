@@ -76,20 +76,25 @@ describe("Parser", () => {
 				verb: "buy",
 				object: "GER",
 				subject: "MIKKO",
-				quantity: 1
+				quantity: 1,
+				price: null,
+				source: null
 			})
 			expect(parser("mikko b 2 ger")).to.include({
 				verb: "buy",
 				object: "GER",
 				subject: "MIKKO",
-				quantity: 2
+				quantity: 2,
+				price: null,
+				source: null
 			})
 			expect(parser("mikko buys ger @100")).to.include({
 				verb: "buy",
 				object: "GER",
 				subject: "MIKKO",
 				quantity: 1,
-				price: 100
+				price: 100,
+				source: null
 			})
 			expect(parser("mikko buys 2 ger 100 from nooa")).to.include({
 				verb: "buy",
