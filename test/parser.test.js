@@ -84,6 +84,29 @@ describe("Parser", () => {
 				subject: "MIKKO",
 				quantity: 2
 			})
+			expect(parser("mikko buys ger @100")).to.include({
+				verb: "buy",
+				object: "GER",
+				subject: "MIKKO",
+				quantity: 1,
+				price: 100
+			})
+			expect(parser("mikko buys 2 ger 100 from nooa")).to.include({
+				verb: "buy",
+				object: "GER",
+				subject: "MIKKO",
+				quantity: 2,
+				price: 100,
+				source: "NOOA"
+			})
+			expect(parser("mikko b 2 ger 100 nooa")).to.include({
+				verb: "buy",
+				object: "GER",
+				subject: "MIKKO",
+				quantity: 2,
+				price: 100,
+				source: "NOOA"
+			})
 		})
 		it("should return correct for sell", () => {
 			expect(parser("mikko sells ger")).to.include({
@@ -100,31 +123,31 @@ describe("Parser", () => {
 			})
 		})
 		it("should return correct for give", () => {
-			expect(parser("mikko give 100")).to.include({
+			expect(parser("mikko give 100 to nooa")).to.include({
 				verb: "give",
-				object: null,
+				object: "NOOA",
 				subject: "MIKKO",
 				quantity: 100
 			})
-			expect(parser("mikko g 100")).to.include({
+			expect(parser("mikko g 100 nooa")).to.include({
 				verb: "give",
-				object: null,
+				object: "NOOA",
 				subject: "MIKKO",
 				quantity: 100
 			})
 		})
-		it("should return correct for take", () => {
-			expect(parser("mikko take 100")).to.include({
-				verb: "take",
+		it("should return correct for cash", () => {
+			expect(parser("mikko cash 10")).to.include({
+				verb: "cash",
 				object: null,
 				subject: "MIKKO",
-				quantity: 100
+				quantity: 10
 			})
-			expect(parser("mikko t 100")).to.include({
-				verb: "take",
+			expect(parser("mikko c -10")).to.include({
+				verb: "cash",
 				object: null,
 				subject: "MIKKO",
-				quantity: 100
+				quantity: -10
 			})
 		})
 		it("should return correct for float", () => {
@@ -144,55 +167,37 @@ describe("Parser", () => {
 		it("should return correct for dividends", () => {
 			expect(parser("ger dividends 10")).to.include({
 				verb: "dividend",
-				object: 10,
+				object: null,
 				subject: "GER",
-				quantity: 0
+				quantity: 10
 			})
 			expect(parser("ger d 10")).to.include({
 				verb: "dividend",
-				object: 10,
+				object: null,
 				subject: "GER",
-				quantity: 0
-			})
-			expect(parser("ger pays prev")).to.include({
-				verb: "dividend",
-				subject: "GER",
-				object: "PREV",
-				quantity: 0
-			})
-			expect(parser("ger p prev")).to.include({
-				verb: "dividend",
-				subject: "GER",
-				object: "PREV",
-				quantity: 0
+				quantity: 10
 			})
 			expect(parser("ger halfdividends 100")).to.include({
 				verb: "halfdividend",
 				subject: "GER",
-				object: 100,
-				quantity: 0
+				object: null,
+				quantity: 100
 			})
 			expect(parser("ger h 100")).to.include({
 				verb: "halfdividend",
 				subject: "GER",
-				object: 100,
-				quantity: 0
-			})
-			expect(parser("ger h prev")).to.include({
-				verb: "halfdividend",
-				subject: "GER",
-				object: "PREV",
-				quantity: 0
+				object: null,
+				quantity: 100
 			})
 		})
 		it("should return correct for value", () => {
 			expect(parser("ger value 10")).to.include({
 				verb: "value",
-				object: 10,
+				object: null,
 				subject: "GER",
-				quantity: 0
+				quantity: 10
 			})
-			expect(parser("ger v word")).property("object").to.be.NaN
+			expect(parser("ger v word")).property("quantity").to.be.NaN
 		})
 		it("should return correct for bank size", () => {
 			expect(parser("banksize 4000")).to.include({

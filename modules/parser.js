@@ -136,15 +136,15 @@ const parse = command => {
 				}
 		}
 	}
-	if (parts.length > 2) {
+	if (parts.length === 3) {
 		let subject = parts[0].toUpperCase()
 		let verb = parts[1]
-		let object = parts[2].toUpperCase()
-		let quantity = parts[3] ? parts[3] : 1
-		if (isNaN(parseInt(quantity)) && !isNaN(parseInt(object))) {
-			let temp = quantity
-			quantity = parseInt(object)
-			object = temp.toUpperCase()
+		let object = null
+		let quantity = 1
+		if (isNaN(parseInt(parts[2]))) {
+			object = parts[2].toUpperCase()
+		} else {
+			quantity = parseInt(parts[2])
 		}
 		switch (verb) {
 			case "b":
@@ -182,16 +182,11 @@ const parse = command => {
 			case "pa":
 			case "pay":
 			case "pays":
-				if (isNaN(parseInt(object))) {
-					object = object.toUpperCase()
-				} else {
-					object = parseInt(object)
-				}
 				result = {
 					verb: "dividend",
 					object,
 					subject,
-					quantity: 0
+					quantity
 				}
 				break
 			case "h":
@@ -207,16 +202,11 @@ const parse = command => {
 			case "halfdividen":
 			case "halfdividend":
 			case "halfdividends":
-				if (isNaN(parseInt(object))) {
-					object = object.toUpperCase()
-				} else {
-					object = parseInt(object)
-				}
 				result = {
 					verb: "halfdividend",
 					object,
 					subject,
-					quantity: 0
+					quantity
 				}
 				break
 			case "v":
@@ -224,35 +214,12 @@ const parse = command => {
 			case "val":
 			case "valu":
 			case "value":
-				object = parseInt(object)
+				if (isNaN(parseInt(object)) && quantity === 1) {
+					object = null
+					quantity = NaN
+				}
 				result = {
 					verb: "value",
-					object,
-					subject,
-					quantity: 0
-				}
-				break
-			case "g":
-			case "gi":
-			case "giv":
-			case "give":
-				quantity = parseInt(object)
-				object = null
-				result = {
-					verb: "give",
-					object,
-					subject,
-					quantity
-				}
-				break
-			case "t":
-			case "ta":
-			case "tak":
-			case "take":
-				quantity = parseInt(object)
-				object = null
-				result = {
-					verb: "take",
 					object,
 					subject,
 					quantity
@@ -263,8 +230,6 @@ const parse = command => {
 			case "flo":
 			case "floa":
 			case "float":
-				quantity = parseInt(object)
-				object = null
 				result = {
 					verb: "float",
 					object,
@@ -272,6 +237,129 @@ const parse = command => {
 					quantity
 				}
 				break
+			case "c":
+			case "ca":
+			case "cas":
+			case "cash":
+				result = {
+					verb: "cash",
+					object,
+					subject,
+					quantity
+				}
+				break
+			default:
+				result = {
+					verb: null,
+					object: null,
+					subject: null,
+					quantity: 0
+				}
+		}
+	}
+	if (parts.length > 3) {
+		let subject = parts[0].toUpperCase()
+		let verb = parts[1]
+		switch (verb) {
+			case "b":
+			case "bu":
+			case "buy":
+			case "buys": {
+				let quantity = 1
+				let object = null
+				let price = 0
+				let source = null
+				let argNumber = 2
+				let verb = "buy"
+				if (isNaN(parseInt(parts[argNumber]))) {
+					object = parts[argNumber].toUpperCase()
+					argNumber += 1
+				} else {
+					quantity = parseInt(parts[argNumber])
+					object = parts[argNumber + 1].toUpperCase()
+					argNumber += 2
+				}
+				if (typeof parts[argNumber] !== "undefined") {
+					if (parts[argNumber].substring(0, 1) === "@") {
+						price = parseInt(parts[argNumber].substring(1))
+					} else {
+						price = parseInt(parts[argNumber])
+					}
+				}
+				argNumber += 1
+				if (
+					typeof parts[argNumber] !== "undefined" &&
+					parts[argNumber].toUpperCase() === "FROM"
+				)
+					argNumber += 1
+				if (typeof parts[argNumber] !== "undefined") {
+					source = parts[argNumber].toUpperCase()
+				}
+
+				result = {
+					verb,
+					object,
+					subject,
+					quantity,
+					price,
+					source
+				}
+				break
+			}
+			case "s":
+			case "se":
+			case "sell":
+			case "sells": {
+				let verb = "sell"
+				let quantity = 1
+				let object = null
+				let price = 0
+				let argNumber = 2
+				if (isNaN(parseInt(parts[argNumber]))) {
+					object = parts[argNumber].toUpperCase()
+					argNumber += 1
+				} else {
+					quantity = parseInt(parts[argNumber])
+					object = parts[argNumber + 1].toUpperCase()
+					argNumber += 2
+				}
+				if (typeof parts[argNumber] !== "undefined") {
+					if (parts[argNumber].substring(0, 1) === "@") {
+						price = parseInt(parts[argNumber].substring(1))
+					} else {
+						price = parseInt(parts[argNumber])
+					}
+				}
+
+				result = {
+					verb,
+					object,
+					subject,
+					quantity,
+					price
+				}
+				break
+			}
+			case "g":
+			case "gi":
+			case "giv":
+			case "give": {
+				let verb = "give"
+				let quantity = parseInt(parts[2])
+				let argNumber = 3
+				if (parts[argNumber].toUpperCase() === "TO") {
+					argNumber += 1
+				}
+				let object = parts[argNumber].toUpperCase()
+
+				result = {
+					verb,
+					object,
+					subject,
+					quantity
+				}
+				break
+			}
 			default:
 				result = {
 					verb: null,
