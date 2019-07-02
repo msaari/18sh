@@ -377,6 +377,19 @@ describe("GameState", () => {
 			gameState.changeCash("NBR", cashChange)
 			expect(gameState._getCash("NBR")).to.equal(cashBefore + cashChange)
 		})
+
+		it("should handle moving cash", () => {
+			const sourceCashBefore = gameState._getCash("MIKKO")
+			const targetCashBefore = gameState._getCash("NBR")
+			const cashChange = 100
+
+			gameState.moveCash("MIKKO", "NBR", cashChange)
+
+			expect(gameState._getCash("MIKKO")).to.equal(
+				sourceCashBefore - cashChange
+			)
+			expect(gameState._getCash("NBR")).to.equal(targetCashBefore + cashChange)
+		})
 	})
 
 	describe("getBankRemains and setBankSize", () => {

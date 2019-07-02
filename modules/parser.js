@@ -155,7 +155,9 @@ const parse = command => {
 					verb: "buy",
 					object,
 					subject,
-					quantity
+					quantity,
+					price: 0,
+					source: null
 				}
 				break
 			case "s":

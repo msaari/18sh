@@ -66,6 +66,15 @@ const changeSharesOwned = (actor, company, quantity) => {
 	return feedback
 }
 
+const buyShares = (actor, company, quantity, price, source) => {
+	let feedback = changeSharesOwned(actor, company, quantity)
+	feedback += "\n" + changeSharesOwned(source, company, quantity * -1)
+	if (price > 0) {
+		feedback += "\n" + moveCash(actor, source, price)
+	}
+	return feedback
+}
+
 const _getCompanyOwners = company => {
 	const sharesOwned = getSharesOwned()
 	const owners = Object.keys(sharesOwned).reduce((accumulator, player) => {
@@ -112,6 +121,12 @@ const changeCash = (target, sum) => {
 		feedback = `${target} now has ^y$${gameState.cash[target]}^\n`
 	}
 	return feedback
+}
+
+const moveCash = (source, target, amount) => {
+	changeCash(source, amount * -1)
+	changeCash(target, amount)
+	return `${source} pays ^y$${amount}^: to ${target}.\n`
 }
 
 /* Gets all players in the game. */
@@ -364,6 +379,7 @@ module.exports = {
 	addToHistory,
 	getSharesOwned,
 	changeSharesOwned,
+	buyShares,
 	payDividends,
 	payHalfDividends,
 	deleteGame,
@@ -377,6 +393,7 @@ module.exports = {
 	getCompanyTable,
 	resetGameState,
 	changeCash,
+	moveCash,
 	setBankSize,
 	getBankRemains,
 	setValue,

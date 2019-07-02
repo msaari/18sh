@@ -77,7 +77,7 @@ describe("Parser", () => {
 				object: "GER",
 				subject: "MIKKO",
 				quantity: 1,
-				price: null,
+				price: 0,
 				source: null
 			})
 			expect(parser("mikko b 2 ger")).to.include({
@@ -85,7 +85,7 @@ describe("Parser", () => {
 				object: "GER",
 				subject: "MIKKO",
 				quantity: 2,
-				price: null,
+				price: 0,
 				source: null
 			})
 			expect(parser("mikko buys ger @100")).to.include({
