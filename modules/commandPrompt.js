@@ -104,6 +104,8 @@ const perform = (command, silent = false) => {
 	updateMode = silent
 	const action = parser(command)
 
+	console.log(action)
+
 	var addToHistory = false
 	switch (action.verb) {
 		case "holdings":
@@ -141,7 +143,7 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "sell":
-			sell(action.subject, action.object, action.quantity)
+			sell(action.subject, action.object, action.quantity, action.price)
 			addToHistory = true
 			break
 		case "dividend":
@@ -198,16 +200,15 @@ const perform = (command, silent = false) => {
 	if (!updateMode) updateStatusBar()
 }
 
-const buy = (buyer, object, count = 1, price = null, source = null) => {
+const buy = (buyer, object, count = 1, price = 0, source = null) => {
 	const feedback = gameState.buyShares(buyer, object, count, price, source)
 	if (!updateMode) {
 		term(feedback)
 	}
 }
 
-const sell = (seller, object, count = 1) => {
-	count *= -1
-	const feedback = gameState.changeSharesOwned(seller, object, count)
+const sell = (seller, object, count = 1, price = 0) => {
+	const feedback = gameState.sellShares(seller, object, count, price)
 	if (!updateMode) {
 		term(feedback)
 	}

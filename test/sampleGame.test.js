@@ -301,10 +301,13 @@ describe("Sample game", () => {
 		])
 */
 		const holdings = gameState.getHoldingsTable()
-
-		expect(holdings[1]).to.deep.equal(["NOOA", 1530, 6, 0, 1, 2, 3, 0])
-		expect(holdings[2]).to.deep.equal(["AAPO", 2262, 3, 3, 3, 1, 0, 2])
-		expect(holdings[3]).to.deep.equal(["HANNU", 2993, 1, 1, 2, 5, 0, 5])
-		expect(holdings[4]).to.deep.equal(["MIKKO", 2481, 0, 6, 4, 0, 1, 3])
+		const nooaHoldings = holdings.filter(row => row[0] === "NOOA")
+		const aapoHoldings = holdings.filter(row => row[0] === "AAPO")
+		const mikkoHoldings = holdings.filter(row => row[0] === "MIKKO")
+		const hannuHoldings = holdings.filter(row => row[0] === "HANNU")
+		expect(nooaHoldings).to.deep.equal(["NOOA", 1530, 6, 0, 1, 2, 3, 0])
+		expect(aapoHoldings).to.deep.equal(["AAPO", 2262, 3, 3, 3, 1, 0, 2])
+		expect(mikkoHoldings).to.deep.equal(["HANNU", 2993, 1, 1, 2, 5, 0, 5])
+		expect(hannuHoldings).to.deep.equal(["MIKKO", 2481, 0, 6, 4, 0, 1, 3])
 	})
 })

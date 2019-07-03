@@ -168,7 +168,8 @@ const parse = command => {
 					verb: "sell",
 					object,
 					subject,
-					quantity
+					quantity,
+					price: 0
 				}
 				break
 			case "d":

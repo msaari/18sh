@@ -68,9 +68,26 @@ const changeSharesOwned = (actor, company, quantity) => {
 
 const buyShares = (actor, company, quantity, price, source) => {
 	let feedback = changeSharesOwned(actor, company, quantity)
-	feedback += "\n" + changeSharesOwned(source, company, quantity * -1)
+	const sum = price * quantity
+	if (source) {
+		feedback += "\n" + changeSharesOwned(source, company, quantity * -1)
+		if (price > 0) {
+			feedback += "\n" + moveCash(actor, source, sum)
+			console.log(feedback, _getCash(actor), _getCash(source))
+		}
+	} else if (price > 0) {
+		feedback += "\n" + changeCash(actor, sum)
+		console.log(feedback, _getCash(actor))
+	}
+	return feedback
+}
+
+const sellShares = (actor, company, quantity, price) => {
+	let feedback = changeSharesOwned(actor, company, quantity * -1)
+	const sum = price * quantity
 	if (price > 0) {
-		feedback += "\n" + moveCash(actor, source, price)
+		feedback += "\n" + changeCash(actor, sum)
+		console.log(feedback, _getCash(actor))
 	}
 	return feedback
 }
@@ -380,6 +397,7 @@ module.exports = {
 	getSharesOwned,
 	changeSharesOwned,
 	buyShares,
+	sellShares,
 	payDividends,
 	payHalfDividends,
 	deleteGame,
