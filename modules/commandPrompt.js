@@ -147,11 +147,11 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "dividend":
-			dividend(action.subject, action.object)
+			dividend(action.subject, action.quantity)
 			addToHistory = true
 			break
 		case "halfdividend":
-			halfdividend(action.subject, action.object)
+			halfdividend(action.subject, action.quantity)
 			addToHistory = true
 			break
 		case "value":
@@ -186,6 +186,9 @@ const perform = (command, silent = false) => {
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
 	}
+
+	console.log(gameState._getCash())
+	console.log(gameState._getCompanyCash())
 
 	if (updateMode) addToHistory = false
 

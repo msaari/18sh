@@ -57,9 +57,11 @@ const changeSharesOwned = (actor, company, quantity) => {
 	} else if (!isNaN(quantityInt)) {
 		sharesOwned[actor][company] += quantityInt
 		if (quantityInt > 0)
-			feedback = `${actor} buys ${company} and now has ${sharesOwned[actor][company]}.\n`
-		if (quantityInt < 0)
-			feedback = `${actor} sells ${company} and now has ${sharesOwned[actor][company]}.\n`
+			feedback = `${actor} buys ${quantityInt} ${company} and now has ${sharesOwned[actor][company]}.\n`
+		if (quantityInt < 0) {
+			const quantityAbs = Math.abs(quantityInt)
+			feedback = `${actor} sells ${quantityAbs} ${company} and now has ${sharesOwned[actor][company]}.\n`
+		}
 	}
 
 	setSharesOwned(sharesOwned)
@@ -73,11 +75,9 @@ const buyShares = (actor, company, quantity, price, source) => {
 		feedback += "\n" + changeSharesOwned(source, company, quantity * -1)
 		if (price > 0) {
 			feedback += "\n" + moveCash(actor, source, sum)
-			console.log(feedback, _getCash(actor), _getCash(source))
 		}
 	} else if (price > 0) {
-		feedback += "\n" + changeCash(actor, sum)
-		console.log(feedback, _getCash(actor))
+		feedback += "\n" + changeCash(actor, sum * -1)
 	}
 	return feedback
 }
@@ -87,7 +87,6 @@ const sellShares = (actor, company, quantity, price) => {
 	const sum = price * quantity
 	if (price > 0) {
 		feedback += "\n" + changeCash(actor, sum)
-		console.log(feedback, _getCash(actor))
 	}
 	return feedback
 }
@@ -119,23 +118,25 @@ const _getCash = (target = null) => {
 	return gameState.cash
 }
 
+const _getCompanyCash = () => gameState.companyCash
+
 const _getAllCash = () => {
 	const cash = {
 		..._getCash(),
-		...gameState.companyCash
+		..._getCompanyCash()
 	}
 	return cash
 }
 
 const changeCash = (target, sum) => {
 	let feedback = ""
-	if (gameState.companyCash[target]) {
-		gameState.companyCash[target] += parseInt(sum)
-		feedback = `${target} now has ^y$${gameState.companyCash[target]}^\n`
-	} else {
+	if (typeof gameState.companyCash[target] === "undefined") {
 		if (isNaN(gameState.cash[target])) gameState.cash[target] = 0
 		gameState.cash[target] += parseInt(sum)
 		feedback = `${target} now has ^y$${gameState.cash[target]}^\n`
+	} else {
+		gameState.companyCash[target] += parseInt(sum)
+		feedback = `${target} now has ^y$${gameState.companyCash[target]}^\n`
 	}
 	return feedback
 }
@@ -167,9 +168,6 @@ const _getPlayers = () => {
 /* Dividend payments. */
 
 const payDividends = (payingCompany, value) => {
-	if (typeof value === "string" && value.substring(0, 2) === "PR") {
-		value = configstore.getPreviousDividend(payingCompany, gameState)
-	}
 	if (isNaN(value)) value = 0
 
 	let feedback = ""
@@ -184,9 +182,6 @@ const payDividends = (payingCompany, value) => {
 
 const payHalfDividends = (payingCompany, totalSum) => {
 	let feedback = ""
-	if (typeof totalSum === "string" && totalSum.substring(0, 2) === "PR") {
-		totalSum = configstore.getPreviousHalfDividend(payingCompany, gameState)
-	}
 	if (isNaN(totalSum)) totalSum = 0
 
 	const halfFloored = Math.floor(totalSum / 20)
@@ -375,7 +370,7 @@ const setBankSize = size => {
 const _getBankRemains = () => {
 	const cashReserves = {
 		..._getCash(),
-		...gameState.companyCash
+		..._getCompanyCash()
 	}
 	const playerCash = Object.keys(cashReserves).reduce((total, player) => {
 		total += cashReserves[player]
@@ -418,6 +413,8 @@ module.exports = {
 	float,
 	_getBankRemains,
 	_getCash,
+	_getCompanyCash,
+	_getAllCash,
 	_setName,
 	_getValue,
 	_getPlayers,
