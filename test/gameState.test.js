@@ -41,7 +41,7 @@ describe("GameState", () => {
 			let sharesOwned = gameState.getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(quantity)
 			expect(feedback).to.have.string(
-				`${actor} buys ${company} and now has ${quantity}.`
+				`${actor} buys ${quantity} ${company} and now has ${quantity}.`
 			)
 		})
 
@@ -52,7 +52,9 @@ describe("GameState", () => {
 			let sharesOwned = gameState.getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(newTotal)
 			expect(feedback).to.have.string(
-				`${actor} sells ${company} and now has ${newTotal}.`
+				`${actor} sells ${Math.abs(
+					sellQuantity
+				)} ${company} and now has ${newTotal}.`
 			)
 		})
 
@@ -93,30 +95,6 @@ describe("GameState", () => {
 			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
 		})
 
-		it("should repay previous dividends correctly", () => {
-			gameState.addToHistory("CR value 100")
-			gameState.addToHistory("NBR value 100")
-			gameState.addToHistory("NBR dividend 15")
-
-			gameState.payDividends("CR", "PREV")
-			gameState.addToHistory("CR dividend PREV")
-
-			mikkoCash += dividend * mikkoShares
-			nooaCash += dividend * nooaShares
-
-			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
-			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
-
-			const feedback = gameState.payDividends("CR", "PREV")
-
-			mikkoCash += dividend * mikkoShares
-			nooaCash += dividend * nooaShares
-
-			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
-			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
-			expect(feedback).to.not.include("undefined")
-		})
-
 		it("should handle non-number values correctly (ie. 0)", () => {
 			gameState.payDividends("CR", "NOT_A_NUMBER")
 
@@ -131,18 +109,6 @@ describe("GameState", () => {
 		it("should handle half dividends", () => {
 			gameState.payHalfDividends("CR", halfDividendTotal)
 			gameState.addToHistory("CR halfdividend 230")
-
-			mikkoCash += halfDividendPerShare * mikkoShares
-			nooaCash += halfDividendPerShare * nooaShares
-
-			expect(gameState._getCash("CR", halfDividendForCompany))
-			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
-			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
-		})
-
-		it("should repay previous half dividends correctly", () => {
-			gameState.payHalfDividends("CR", "PREV")
-			gameState.addToHistory("CR halfdividend PREV")
 
 			mikkoCash += halfDividendPerShare * mikkoShares
 			nooaCash += halfDividendPerShare * nooaShares

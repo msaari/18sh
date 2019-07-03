@@ -254,30 +254,24 @@ describe("Sample game", () => {
 		commandPrompt._updateGameState(game.commands)
 		const gameState = commandPrompt._getGameState()
 		const values = gameState.getValuesTable()
-		/*
-		expect(values[1]).to.deep.equal([
-			"MIKKO",
-			2481,
-			0,
-			1080,
-			1900,
-			0,
-			195,
-			1425,
-			7081
-		])
-		expect(values[2]).to.deep.equal([
+
+		const nooaValues = values.filter(row => row[0] === "NOOA").flat()
+		const aapoValues = values.filter(row => row[0] === "AAPO").flat()
+		const mikkoValues = values.filter(row => row[0] === "MIKKO").flat()
+		const hannuValues = values.filter(row => row[0] === "HANNU").flat()
+
+		expect(nooaValues).to.deep.equal([
 			"NOOA",
-			1530,
+			1826,
 			1770,
 			0,
 			475,
-			460,
+			920,
 			585,
 			0,
-			4820
+			5576
 		])
-		expect(values[3]).to.deep.equal([
+		expect(aapoValues).to.deep.equal([
 			"AAPO",
 			2262,
 			885,
@@ -288,7 +282,18 @@ describe("Sample game", () => {
 			950,
 			6292
 		])
-		expect(values[4]).to.deep.equal([
+		expect(mikkoValues).to.deep.equal([
+			"MIKKO",
+			2481,
+			0,
+			1080,
+			1900,
+			0,
+			195,
+			1425,
+			7081
+		])
+		expect(hannuValues).to.deep.equal([
 			"HANNU",
 			2993,
 			295,
@@ -299,15 +304,16 @@ describe("Sample game", () => {
 			2375,
 			7943
 		])
-*/
+
 		const holdings = gameState.getHoldingsTable()
-		const nooaHoldings = holdings.filter(row => row[0] === "NOOA")
-		const aapoHoldings = holdings.filter(row => row[0] === "AAPO")
-		const mikkoHoldings = holdings.filter(row => row[0] === "MIKKO")
-		const hannuHoldings = holdings.filter(row => row[0] === "HANNU")
+		const nooaHoldings = holdings.filter(row => row[0] === "NOOA").flat()
+		const aapoHoldings = holdings.filter(row => row[0] === "AAPO").flat()
+		const mikkoHoldings = holdings.filter(row => row[0] === "MIKKO").flat()
+		const hannuHoldings = holdings.filter(row => row[0] === "HANNU").flat()
+
 		expect(nooaHoldings).to.deep.equal(["NOOA", 1826, 6, 0, 1, 4, 3, 0])
 		expect(aapoHoldings).to.deep.equal(["AAPO", 2262, 3, 3, 3, 1, 0, 2])
-		expect(mikkoHoldings).to.deep.equal(["HANNU", 2993, 1, 1, 2, 5, 0, 5])
-		expect(hannuHoldings).to.deep.equal(["MIKKO", 2481, 0, 6, 4, 0, 1, 3])
+		expect(hannuHoldings).to.deep.equal(["HANNU", 2993, 1, 1, 2, 5, 0, 5])
+		expect(mikkoHoldings).to.deep.equal(["MIKKO", 2481, 0, 6, 4, 0, 1, 3])
 	})
 })

@@ -104,8 +104,6 @@ const perform = (command, silent = false) => {
 	updateMode = silent
 	const action = parser(command)
 
-	console.log(action)
-
 	var addToHistory = false
 	switch (action.verb) {
 		case "holdings":
@@ -155,7 +153,7 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "value":
-			value(action.subject, action.object)
+			value(action.subject, action.quantity)
 			addToHistory = true
 			break
 		case "give":
@@ -186,9 +184,6 @@ const perform = (command, silent = false) => {
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
 	}
-
-	console.log(gameState._getCash())
-	console.log(gameState._getCompanyCash())
 
 	if (updateMode) addToHistory = false
 
