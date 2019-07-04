@@ -207,21 +207,21 @@ describe("Parser", () => {
 		it("should return correct for bank size", () => {
 			expect(parser("banksize 4000")).to.include({
 				verb: "banksize",
-				object: 4000,
+				object: null,
 				subject: null,
-				quantity: 0
+				quantity: 4000
 			})
 			expect(parser("b 4000")).to.include({
 				verb: "banksize",
-				object: 4000,
+				object: null,
 				subject: null,
-				quantity: 0
+				quantity: 4000
 			})
 			expect(parser("banksize word")).to.include({
 				verb: "banksize",
 				object: null,
 				subject: null,
-				quantity: 0
+				quantity: null
 			})
 		})
 		it("should return correct for bank", () => {
