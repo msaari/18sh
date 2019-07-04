@@ -2,8 +2,21 @@
 
 ## TODO
 - SR/OR markers in the log to get values by SR/OR (maybe).
-- Rename GIVE and TAKE, they're illogical.
-- Doing `mikko b gt`, `mikko take 100`, `gt s gt`, `gt give 100` when playing 1846 and buying shares from a company treasure is annoying. It should be possible to do `mikko buy gt from gt 100` or something like that and have the whole transaction happen at once.
+- Fix tests so that individual tests don't depend on other tests.
+- Add more tests and more error handling to better survive wrong instructions
+like buying too many shares.
+- Add a command to remove companies from play.
+
+## Unreleased (`v2` branch, to be released as 2.0.0)
+- Removed: `give` and `take` have been replaced by `cash`.
+- Added: `cash` can be used to adjust player cash. `Mikko cash 100` adds money
+and `Mikko cash -100` subtracts money.
+- Changed: `give` is now used to move money between participants.
+- Changed: `buy` can now specify a price and a source. Price will adjust cash
+and if source is specified, the source sells the share and gets the money.
+- Changed: `sell` can also specify a price to give the money.
+- Removed: Doing `CR dividend prev` is no longer possible. It was a bit
+complicated and actually not very helpful in practise, so I dropped it.
 
 ## 1.2.0 – 2019-06-29
 - Added: Companies can now have cash as well. Company cash will appear in the

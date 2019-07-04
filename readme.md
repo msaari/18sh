@@ -7,8 +7,15 @@ game scores in 18xx games. Spreadsheets are fine, especially if they're well
 designed with formulas to avoid entering the same data twice, but I wanted to
 try how an interactive shell would work.
 
+The design philosophy behind 18SH is to not support game rules, but just offer
+a simple and effective way of recording the financial transactions of the game.
+18SH aims to support different ways money and shares are handled, it has tools
+that make life easier for both full cap and incremental cap games, for example,
+but it cannot track company value automatically or enforce certificate limit.
+
 18SH follows semantic versioning; the biggest catch is that save file
-compatibility is only guaranteed within major versions.
+compatibility is only guaranteed within major versions. If the first number
+changes in the version number, your saved games won't work anymore.
 
 ## Installing
 
@@ -208,7 +215,8 @@ For discussion about 18SH, see [the BoardGameGeek 18SH thread](https://boardgame
 
 ## Changelog
 
-See [changelog.md](changelog.md) in the repo.
+See [changelog.md](changelog.md) in the repo for change history, todo list and
+the unreleased features already available from the repo, but not in releases.
 
 ## License
 
