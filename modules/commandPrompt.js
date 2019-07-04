@@ -105,6 +105,7 @@ const perform = (command, silent = false) => {
 	const action = parser(command)
 
 	var addToHistory = false
+	let normalizedCommand = ""
 	switch (action.verb) {
 		case "holdings":
 			holdings()
@@ -138,38 +139,50 @@ const perform = (command, silent = false) => {
 				action.price,
 				action.source
 			)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} ${action.object}`
+			if (action.price) normalizedCommand += ` @${action.price}`
+			if (action.source) normalizedCommand += ` from ${action.source}`
 			addToHistory = true
 			break
 		case "sell":
 			sell(action.subject, action.object, action.quantity, action.price)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} ${action.object}`
+			if (action.price) normalizedCommand += ` @${action.price}`
 			addToHistory = true
 			break
 		case "dividend":
 			dividend(action.subject, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "halfdividend":
 			halfdividend(action.subject, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "value":
 			value(action.subject, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "give":
 			give(action.subject, action.object, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} to ${action.object}`
 			addToHistory = true
 			break
 		case "cash":
 			cash(action.subject, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "float":
 			float(action.subject, action.quantity)
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "banksize":
-			bankSize(action.object)
+			bankSize(action.quantity)
+			normalizedCommand = `${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "bank":
@@ -188,11 +201,6 @@ const perform = (command, silent = false) => {
 	if (updateMode) addToHistory = false
 
 	if (addToHistory) {
-		let normalizedCommand = ""
-		if (action.subject) normalizedCommand += `${action.subject} `
-		if (action.verb) normalizedCommand += `${action.verb} `
-		if (action.object) normalizedCommand += `${action.object} `
-		if (action.quantity) normalizedCommand += `${action.quantity}`
 		gameState.addToHistory(normalizedCommand.trim())
 	}
 	if (!updateMode) updateStatusBar()
