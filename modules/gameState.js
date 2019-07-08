@@ -299,6 +299,28 @@ const statusBarContent = () => {
 	return barContent
 }
 
+const displayContent = () => {
+	let displayContent = {}
+	if (gameState.bankSize) {
+		displayContent.bank = _getBankRemains()
+	} else {
+		const totalCash = Object.keys(_getAllCash()).reduce((total, player) => {
+			total += _getCash(player)
+			return total
+		}, 0)
+		displayContent.total = totalCash
+	}
+	_getPlayers().forEach(player => {
+		const cash = _getCash(player)
+		displayContent[player] = cash
+	})
+	_getAllCompanies().forEach(company => {
+		const cash = _getCash(company)
+		displayContent[company] = cash
+	})
+	return displayContent
+}
+
 /* Floats a company. */
 
 const float = (company, cash) => {
@@ -401,6 +423,7 @@ module.exports = {
 	createOrLoadGame,
 	open,
 	statusBarContent,
+	displayContent,
 	getHoldingsTable,
 	getValuesTable,
 	getCompanyTable,

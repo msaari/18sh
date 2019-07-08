@@ -6,10 +6,12 @@
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
 - Add a command to remove companies from play.
-- This one's really big so might take a while, but: it would be nice to make a
-web-accessible version that would still have the command line interface, but
-which could also offer a second view, so you could set up a second screen that
-would show the player and company cash totals in BIG, easy-to-see numbers.
+
+## Unreleased (available in `master`)
+- An external cash display support is available! If the environmental variable
+`DISPLAY18SH` has an URL, 18SH will send cash status information there and if
+there's an [18SH display server](https://github.com/msaari/18sh-display) there,
+it will display the cash totals.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

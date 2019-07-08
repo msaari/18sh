@@ -4,6 +4,7 @@ const parser = require("./parser")
 const term = require("terminal-kit").terminal
 const gameState = require("./gameState")
 const statusBar = require("./statusBar")
+const updateDisplay = require("./display")
 const usage = require("./usage")
 
 var updateMode = false
@@ -21,6 +22,7 @@ const initialize = () => {
 
 const updateStatusBar = () => {
 	statusBar(gameState.statusBarContent())
+	updateDisplay(gameState.getName(), gameState.displayContent())
 }
 
 const _updateGameState = commandHistoryArray => {
