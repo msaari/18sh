@@ -19,7 +19,7 @@ changes in the version number, your saved games won't work anymore.
 
 ## Installing
 
-Clone from Github or download the files. The GitHub `master` is the current
+Clone from GitHub or download the files. The GitHub `master` is the current
 state of development and not always stable. For stable releases, get the
 [tagged release packages](https://github.com/msaari/18sh/releases). Then
 install the Node modules with
@@ -27,6 +27,19 @@ install the Node modules with
 	npm install
 
 and you're ready to go. 18SH requires [Node.js](https://nodejs.org/en/download/).
+
+## Upgrading
+
+If you use a stable release package, just download the new package and use
+that.
+
+If you clone from GitHub, you can upgrade to the latest version with
+
+	git pull
+
+Note that the latest `master` may be unstable. However, major version
+development generally happens in a separate branch, so `master` will have the
+latest version of the current major version.
 
 ## Usage
 
@@ -48,46 +61,78 @@ you'll finally see the end results.
 ## Commands
 
 ### BUY
-	<player|company> buys <company> <count>
+	<player|company> buys <count> <company> [@<price> [from <source>]]
 
 There's no need to introduce player or company names: just use any
 abbreviations you like, as long as you always refer to the same player or
 company with the same abbreviation. The names are case insensitive (and always
 converted to upper case anyway).
 
-Companies can also buy shares.
+If you specify a price, that amount of money will be reducted from the buyer.
+Price is the price for single share, so it will be multiplied by the number of
+shares bought. If you specify a source, the money will be paid to the source,
+and the share will be removed from the source. When buying from pool, do not
+specify the source; this is mostly useful in partical cap games like 1846,
+where companies own their own shares and are paid for share purchases.
 
-You can abbreviate the command to `b`, `bu` or `buy` and switch `<company>`
-and `<count>` if desired.
+You can't specify source without a price.
+
+Companies can also buy shares, either their own or from other companies.
+
+You can abbreviate the command to `b`, `bu` or `buy`. Count can be omitted,
+in which case it's assumed to be 1. You can drop the `@` from the price, if you
+prefer, and adding the `from` is optional.
 
 All of these commands have Mikko buy two LNWR shares:
 
-	Mikko buys LNWR 2
+	Mikko buys 2 LNWR
 	Mikko buy 2 LNWR
 	Mikko b 2 LNWR
 
+In a game of 1846, you will see something like this. These commands have the
+same effect:
+
+	Mikko buys 1 GT @100 from GT
+	Mikko b GT 100 GT
+
 ### SELL
-	<player|company> sells <company> <count>
+	<player|company> sells <count> <company> [@<price>]
 
 The opposite of buying shares. The same principles apply to `sell`: you can
-abbreviate the command and switch `<company>` and `<count>` if you wish.
+abbreviate the command. If you specify the price, the seller will be given that
+much money from the bank.
 
-If you try to sell more than you have, 18SH will sell to zero.
+If you try to sell more than you have, 18SH will sell to zero. You can't sell
+to someone; for transactions like that, you always have to `buy`.
+
+### CASH
+	<player|company> cash <amount>
+
+Adjusts the player or company cash. If `<amount>` is positive, the money is
+added and if it's negative, the money is removed. All transactions happen
+between the player or the company and the bank.
+
+Company must be floated before its cash can be handled (see `float` below).
 
 ### GIVE
-	<player|company> give <amount>
+	<player|company> give <amount> to <player|company>
 
-Gives the specified amount of cash to the player or company. Company must be
-floated before its cash can be handled (see `float` below).
+Has the player or company move the specific amount of money to the target.
 
-### TAKE
-	<player|company> take <amount>
+A company must be floated before its cash can be handled (see `float` below).
 
-Takes the specified amount of cash from the player or company. Company must be
-floated before its cash can be handled (see `float` below).
+Doing one of these:
+
+	GT give 60 to Mikko
+	GT g 60 Mikko
+
+is the same as doing
+
+	GT cash -60
+	Mikko cash 60
 
 ### DIVIDENDS
-	<company> dividends <number|previous>
+	<company> dividends <number>
 
 This command has the company distribute `<number>` as a dividend. Use the
 per-share value, not the total dividend: if there are ten shares as usual and
@@ -103,13 +148,6 @@ and it also has an alias, `pays`. These are all identical to the command above:
 	GER pay 20
 	GER pa 20
 	GER p 20
-
-You can also use `previous` to re-distribute the previous dividend. This can be
-shortened:
-
-	GER dividend previous
-	GER pays prev
-	GER d pr
 
 ### HALF DIVIDENDS
 	<company> halfdividends <number>
@@ -127,10 +165,24 @@ NYC will retain 140 and each NYC share is paid 15.
 	<company> float <number>
 
 Starts up a company and sets its cash to `<number>`. This needs to be done
-first if you want to track company cash, because otherwise `<company> give
-<sum>` will not work correctly but will instead assume `<company>` is a player.
+first if you want to track company cash, because otherwise `<company> cash
+<amount>` will not work correctly but will instead assume `<company>` is a
+player.
 
 	NYC float 630
+
+In partial-cap games like 1846, you generally want to float companies like
+this:
+
+	GT float 0
+	GT buys 10 GT @0
+
+Now 18SH knows GT exists and GT has 10 shares. Then the president can determine
+the price of one share and then buy the initial shares:
+
+	Mikko buys 2 GT @100 from GT
+
+Now GT would have $200 and Mikko has 2 GT shares.
 
 ### VALUE
 	<company> value <number>

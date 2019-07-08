@@ -6,8 +6,12 @@
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
 - Add a command to remove companies from play.
+- This one's really big so might take a while, but: it would be nice to make a
+web-accessible version that would still have the command line interface, but
+which could also offer a second view, so you could set up a second screen that
+would show the player and company cash totals in BIG, easy-to-see numbers.
 
-## Unreleased (`v2` branch, to be released as 2.0.0)
+## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.
 - Added: `cash` can be used to adjust player cash. `Mikko cash 100` adds money
 and `Mikko cash -100` subtracts money.
