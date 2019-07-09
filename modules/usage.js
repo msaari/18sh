@@ -11,14 +11,17 @@ Player and company information:
 \t^Wbank^ – Show the money remaining in the bank.
 
 Game actions:
-\t<player> ^Wbuy^ <company> <quantity> – Have player buy company shares.
-\t<player> ^Wsell^ <company> <quantity> – Have player sell company shares.
+\t<player> ^Wbuy^ <quantity> <company> – Have player buy company shares.
+\t<player> ^Wbuy^ <quantity> <company> @<price> – Have player buy company shares at a specific price.
+\t<player> ^Wbuy^ <quantity> <company> @<price> from <source> – Have player buy company shares at a specific price from specific source.
+\t<player> ^Wsell^ <quantity> <company> @<price> – Have player sell company shares.
 \t<company> ^Wdividend^ <amount per share> – Have company pay a dividend to shareholders.
 \t<company> ^Whalfdividend^ <total amount> – Have company pay a half dividend to shareholders[1][2].
 \t<company> ^Wvalue^ <amount> – Set company share value.
 \t<company> ^Wfloat^ <amount> – Start a company and give it cash from the bank.
-\t<player|company> ^Wgive^ <amount> – Give cash to a player or a company[2].
-\t<player|company> ^Wtake^ <amount> – Take cash from a player or a company[2].
+\t^Wclose^ <company> – Removes company cash and shares from play.
+\t<player|company> ^Wgive^ <amount> to <player|company> – Give cash from someone to someone[2].
+\t<player|company> ^Wcash^ <amount> – Adjust player or company[2] cash.
 \t^Wbanksize^ <amount> – Set the bank size.
 
 1: Retain half (rounded down to nearest ten dollars) in company, distribute half to shares.
