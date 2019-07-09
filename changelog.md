@@ -1,7 +1,6 @@
 # Changelog for 18SH
 
 ## TODO
-- SR/OR markers in the log to get values by SR/OR (maybe).
 - Fix tests so that individual tests don't depend on other tests.
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
@@ -13,6 +12,8 @@ there's an [18SH display server](https://github.com/msaari/18sh-display)
 listening, it will display the cash totals.
 - Added: `close` will close down company, removing all cash and shares from
 play. This will remove the company from status bar and cash display.
+- Added: `next` will move the game to next SR or OR. The current round is shown
+in the status bar.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

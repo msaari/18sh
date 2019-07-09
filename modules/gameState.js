@@ -196,6 +196,34 @@ const payHalfDividends = (payingCompany, totalSum) => {
 	return feedback
 }
 
+/* Advance round count. */
+const nextRound = roundType => {
+	if (!gameState.round)
+		gameState.round = {
+			type: "SR",
+			srNumber: 0,
+			orNumber: 0
+		}
+	if (roundType === "SR") {
+		gameState.round.type = "SR"
+		gameState.round.srNumber += 1
+		gameState.round.orNumber = 0
+	}
+	if (roundType === "OR") {
+		gameState.round.type = "OR"
+		gameState.round.orNumber += 1
+	}
+	return `It's now ^y${_getRound()}^:.\n`
+}
+
+const _getRound = () => {
+	if (!gameState.round) return ""
+	if (gameState.round.type === "SR") {
+		return `${gameState.round.type} ${gameState.round.srNumber}`
+	}
+	return `${gameState.round.type} ${gameState.round.srNumber}.${gameState.round.orNumber}`
+}
+
 /* Reset game state. */
 
 const resetGameState = () => {
@@ -204,6 +232,7 @@ const resetGameState = () => {
 	gameState.companyCash = []
 	gameState.values = []
 	gameState.bankSize = null
+	gameState.round = null
 }
 
 /* Set and get company values. */
@@ -273,8 +302,12 @@ const createOrLoadGame = () => {
 
 const statusBarContent = () => {
 	let barContent = {
+		round: "",
 		players: "",
 		companies: ""
+	}
+	if (_getRound()) {
+		barContent.round = _getRound()
 	}
 	if (gameState.bankSize) {
 		const bank = _getBankRemains()
@@ -443,6 +476,7 @@ module.exports = {
 	setValue,
 	float,
 	close,
+	nextRound,
 	_getBankRemains,
 	_getCash,
 	_getCompanyCash,
@@ -450,5 +484,6 @@ module.exports = {
 	_setName,
 	_getValue,
 	_getPlayers,
-	_calculatePlayerValue
+	_calculatePlayerValue,
+	_getRound
 }

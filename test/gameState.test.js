@@ -396,4 +396,17 @@ describe("GameState", () => {
 			expect(gameState._getBankRemains()).to.equal(bankBefore - floatMoney)
 		})
 	})
+
+	describe("next", () => {
+		it("should advance the round correctly", () => {
+			gameState.nextRound("SR")
+			expect(gameState._getRound()).to.equal("SR 1")
+			gameState.nextRound("OR")
+			expect(gameState._getRound()).to.equal("OR 1.1")
+			gameState.nextRound("OR")
+			expect(gameState._getRound()).to.equal("OR 1.2")
+			gameState.nextRound("SR")
+			expect(gameState._getRound()).to.equal("SR 2")
+		})
+	})
 })

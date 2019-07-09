@@ -22,6 +22,7 @@ Game actions:
 \t^Wclose^ <company> – Removes company cash and shares from play.
 \t<player|company> ^Wgive^ <amount> to <player|company> – Give cash from someone to someone[2].
 \t<player|company> ^Wcash^ <amount> – Adjust player or company[2] cash.
+\t^Wnext^ <SR|OR> – Moves the game to next SR or OR.
 \t^Wbanksize^ <amount> – Set the bank size.
 
 1: Retain half (rounded down to nearest ten dollars) in company, distribute half to shares.

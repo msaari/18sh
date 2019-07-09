@@ -7,6 +7,8 @@ const showStatus = barContent => {
 	const companyBarContentArray = barContent.companies.split("\t")
 	let barContentString = "18SH"
 
+	if (barContent.round) barContentString += "    " + barContent.round
+
 	term.saveCursor()
 
 	let playerBarContent = ""

@@ -201,7 +201,7 @@ const perform = (command, silent = false) => {
 			addToHistory = false
 			break
 		case "next":
-			nextPhase(action.object)
+			nextRound(action.object)
 			normalizedCommand = `${action.verb} ${action.object}`
 			addToHistory = true
 			break
@@ -331,8 +331,8 @@ const showBankRemains = () => {
 	}
 }
 
-const nextPhase = phase => {
-	const feedback = gameState.next(phase)
+const nextRound = round => {
+	const feedback = gameState.nextRound(round)
 	if (!updateMode) {
 		term(feedback)
 	}
