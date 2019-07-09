@@ -200,6 +200,11 @@ const perform = (command, silent = false) => {
 			companies()
 			addToHistory = false
 			break
+		case "next":
+			nextPhase(action.object)
+			normalizedCommand = `${action.verb} ${action.object}`
+			addToHistory = true
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -321,6 +326,13 @@ const bankSize = size => {
 
 const showBankRemains = () => {
 	const feedback = gameState.getBankRemains()
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const nextPhase = phase => {
+	const feedback = gameState.next(phase)
 	if (!updateMode) {
 		term(feedback)
 	}

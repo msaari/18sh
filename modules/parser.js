@@ -136,6 +136,17 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "n":
+			case "ne":
+			case "nex":
+			case "next":
+				result = {
+					verb: "next",
+					object,
+					subject: null,
+					quantity: 0
+				}
+				break
 			default:
 				result = {
 					verb: null,
