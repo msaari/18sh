@@ -169,6 +169,14 @@ describe("Parser", () => {
 				quantity: 710
 			})
 		})
+		it("should return correct for close", () => {
+			expect(parser("close cr")).to.include({
+				verb: "close",
+				object: "CR",
+				subject: null,
+				quantity: 0
+			})
+		})
 		it("should return correct for dividends", () => {
 			expect(parser("ger dividends 10")).to.include({
 				verb: "dividend",

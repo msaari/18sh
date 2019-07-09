@@ -264,7 +264,7 @@ describe("GameState", () => {
 		})
 	})
 
-	describe("float", () => {
+	describe("float and close", () => {
 		it("should float a company correctly", () => {
 			const startingCash = 710
 			gameState.float("NBR", startingCash)
@@ -272,6 +272,16 @@ describe("GameState", () => {
 
 			gameState.float("CR", startingCash)
 			expect(gameState._getCash("CR")).to.equal(startingCash)
+		})
+
+		it("should close a company correctly", () => {
+			gameState.float("TEST", 1000)
+			expect(gameState._getCash("TEST")).to.equal(1000)
+			gameState.buyShares("MIKKO", "TEST", 10)
+			expect(gameState.getSharesOwned().MIKKO.TEST).to.equal(10)
+			gameState.close("TEST")
+			expect(gameState._getCash("TEST")).to.equal(null)
+			expect(gameState.getSharesOwned().MIKKO.TEST).to.be.undefined
 		})
 	})
 
