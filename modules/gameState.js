@@ -333,23 +333,26 @@ const statusBarContent = () => {
 }
 
 const displayContent = () => {
-	let displayContent = {}
+	let displayContent = {
+		round: _getRound(),
+		cash: {}
+	}
 	if (gameState.bankSize) {
-		displayContent.bank = _getBankRemains()
+		displayContent.cash.bank = _getBankRemains()
 	} else {
 		const totalCash = Object.keys(_getAllCash()).reduce((total, player) => {
 			total += _getCash(player)
 			return total
 		}, 0)
-		displayContent.total = totalCash
+		displayContent.cash.total = totalCash
 	}
 	_getPlayers().forEach(player => {
 		const cash = _getCash(player)
-		displayContent[player] = cash
+		displayContent.cash[player] = cash
 	})
 	_getAllCompanies().forEach(company => {
 		const cash = _getCash(company)
-		displayContent[company] = cash
+		displayContent.cash[company] = cash
 	})
 	return displayContent
 }
