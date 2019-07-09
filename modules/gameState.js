@@ -113,7 +113,7 @@ const _getCash = (target = null) => {
 	if (target) {
 		if (gameState.companyCash[target]) return gameState.companyCash[target]
 		if (gameState.cash[target]) return gameState.cash[target]
-		return 0
+		return null
 	}
 	return gameState.cash
 }
