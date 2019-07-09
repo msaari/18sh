@@ -321,11 +321,19 @@ const displayContent = () => {
 	return displayContent
 }
 
-/* Floats a company. */
+/* Floats and closes a company. */
 
 const float = (company, cash) => {
 	gameState.companyCash[company] = cash
 	return `Floated ^y${company}^ with ^y${cash}^:.\n`
+}
+
+const close = company => {
+	Reflect.deleteProperty(gameState.companyCash, company)
+	Object.keys(gameState.sharesOwned).forEach(owner => {
+		Reflect.deleteProperty(gameState.sharesOwned[owner], company)
+	})
+	return `Closed ^y${company}^:.\n`
 }
 
 /* Gets all companies in play. */
@@ -434,6 +442,7 @@ module.exports = {
 	getBankRemains,
 	setValue,
 	float,
+	close,
 	_getBankRemains,
 	_getCash,
 	_getCompanyCash,

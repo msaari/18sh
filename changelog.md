@@ -5,13 +5,14 @@
 - Fix tests so that individual tests don't depend on other tests.
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
-- Add a command to remove companies from play.
 
 ## Unreleased (available in `master`)
 - An external cash display support is available! If the environmental variable
 `DISPLAY18SH` has an URL, 18SH will send cash status information there and if
-there's an [18SH display server](https://github.com/msaari/18sh-display) there,
-it will display the cash totals.
+there's an [18SH display server](https://github.com/msaari/18sh-display)
+listening, it will display the cash totals.
+- Added: `close` will close down company, removing all cash and shares from
+play. This will remove the company from status bar and cash display.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

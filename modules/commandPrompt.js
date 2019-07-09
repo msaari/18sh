@@ -182,6 +182,11 @@ const perform = (command, silent = false) => {
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
+		case "close":
+			close(action.object)
+			normalizedCommand = `${action.verb} ${action.object}`
+			addToHistory = true
+			break
 		case "banksize":
 			bankSize(action.quantity)
 			normalizedCommand = `${action.verb} ${action.quantity}`
@@ -295,6 +300,13 @@ const cash = (target, quantity) => {
 
 const float = (company, cash) => {
 	const feedback = gameState.float(company, cash)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const close = company => {
+	const feedback = gameState.close(company)
 	if (!updateMode) {
 		term(feedback)
 	}

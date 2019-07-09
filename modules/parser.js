@@ -128,6 +128,14 @@ const parse = command => {
 				}
 				break
 			}
+			case "close":
+				result = {
+					verb: "close",
+					object,
+					subject: null,
+					quantity: 0
+				}
+				break
 			default:
 				result = {
 					verb: null,
