@@ -3,6 +3,7 @@
 ## TODO
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
+- Choosing the currency.
 
 ## Unreleased (available in `master`)
 - An external cash display support is available! If the environmental variable
