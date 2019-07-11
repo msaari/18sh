@@ -119,10 +119,19 @@ const parse = command => {
 			case "banksi":
 			case "banksiz":
 			case "banksize": {
-				let quantity = isNaN(parseInt(object)) ? null : parseInt(object)
+				let quantity = 0
+				if (isNaN(parseInt(object))) {
+					if (!isNaN(parseInt(object.substr(1)))) {
+						quantity = parseInt(object.substr(1))
+						object = object.substr(0, 1)
+					}
+				} else {
+					quantity = parseInt(object)
+					object = null
+				}
 				result = {
 					verb: "banksize",
-					object: null,
+					object,
 					subject: null,
 					quantity
 				}

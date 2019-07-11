@@ -188,9 +188,11 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "banksize":
-			bankSize(action.quantity)
-			normalizedCommand = `${action.verb} ${action.quantity}`
-			addToHistory = true
+			bankSize(action.quantity, action.object)
+			normalizedCommand = `${action.verb} `
+			if (action.object) normalizedCommand += `${action.object}`
+			normalizedCommand += `${action.quantity}`
+			addToHistory = action.quantity
 			break
 		case "bank":
 			showBankRemains()
@@ -317,8 +319,8 @@ const close = company => {
 	}
 }
 
-const bankSize = size => {
-	const feedback = gameState.setBankSize(size)
+const bankSize = (size, currency) => {
+	const feedback = gameState.setBankSize(size, currency)
 	if (!updateMode) {
 		term(feedback)
 	}

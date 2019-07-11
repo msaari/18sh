@@ -10,7 +10,8 @@ const gameState = {
 	companyCash: [],
 	values: [],
 	bankSize: null,
-	undid: ""
+	undid: "",
+	currency: "$"
 }
 
 /* Set and get the game name */
@@ -36,7 +37,15 @@ const addToHistory = command => {
 	configstore.addCommandToHistory(command, gameState)
 }
 
-/* Buy and sell shares */
+/* Currency. */
+
+const _getCurrency = () => gameState.currency
+
+const _setCurrency = newCurrency => {
+	gameState.currency = newCurrency
+}
+
+/* Buy and sell shares. */
 
 const buyShares = (actor, company, quantity, price, source) => {
 	let feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
@@ -195,6 +204,7 @@ const resetGameState = () => {
 	gameState.values = []
 	gameState.bankSize = null
 	gameState.round = null
+	gameState._setCurrency = "$"
 }
 
 /* Set and get company values. */
@@ -384,9 +394,10 @@ const getCompanyTable = () => {
 
 /* Bank size management. */
 
-const setBankSize = size => {
-	if (!isNaN(parseInt(size))) gameState.bankSize = parseInt(size)
-	return `Bank size set to ^y$${size}^\n`
+const setBankSize = (size, currency) => {
+	gameState.bankSize = parseInt(size)
+	_setCurrency(currency)
+	return `Bank size set to ^y${_getCurrency()}${size}^\n`
 }
 
 const _getBankRemains = () => {
