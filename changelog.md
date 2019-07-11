@@ -14,6 +14,8 @@ listening, it will display the cash totals.
 play. This will remove the company from status bar and cash display.
 - Added: `next` will move the game to next SR or OR. The current round is shown
 in the status bar.
+- Changed: Player value is only displayed in the status bar if it's not the
+same as cash.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

@@ -111,8 +111,10 @@ const _getCompanyOwners = company => {
 
 const _getCash = (target = null) => {
 	if (target) {
-		if (gameState.companyCash[target]) return gameState.companyCash[target]
-		if (gameState.cash[target]) return gameState.cash[target]
+		if (gameState.companyCash[target] || gameState.companyCash[target] === 0)
+			return gameState.companyCash[target]
+		if (gameState.cash[target] || gameState.cash[target] === 0)
+			return gameState.cash[target]
 		return null
 	}
 	return gameState.cash
@@ -322,7 +324,8 @@ const statusBarContent = () => {
 	_getPlayers().forEach(player => {
 		const value = _calculatePlayerValue(player)
 		const cash = _getCash(player)
-		barContent.players += `\t${player} $${cash} ($${value})`
+		barContent.players += `\t${player} $${cash}`
+		if (value !== cash) barContent.players += ` ($${value})`
 	})
 	_getAllCompanies().forEach(company => {
 		const value = _getValue(company)

@@ -320,6 +320,8 @@ describe("GameState", () => {
 			players.forEach(player => {
 				const value = gameState._calculatePlayerValue(player)
 				const cash = gameState._getCash(player)
+				expect(cash).not.to.be.null
+				expect(value).not.to.be.null
 				expect(statusBar.players).to.include(`${player} $${cash} ($${value})`)
 			})
 		})
