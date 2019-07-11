@@ -1,7 +1,6 @@
 # Changelog for 18SH
 
 ## TODO
-- Fix tests so that individual tests don't depend on other tests.
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
 
@@ -16,6 +15,8 @@ play. This will remove the company from status bar and cash display.
 in the status bar.
 - Changed: Player value is only displayed in the status bar if it's not the
 same as cash.
+- Changed: Tests have been setup so that individual tests don't depend on other
+tests.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

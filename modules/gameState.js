@@ -2,10 +2,10 @@
 
 const configstore = require("./configstore")
 const tables = require("./tables")
+const stockHoldings = require("./stockHoldings")
 
 const gameState = {
 	gameName: "",
-	sharesOwned: [],
 	cash: [],
 	companyCash: [],
 	values: [],
@@ -36,43 +36,14 @@ const addToHistory = command => {
 	configstore.addCommandToHistory(command, gameState)
 }
 
-/* Sets, gets and changes the share ownership data. */
-
-const getSharesOwned = () => gameState.sharesOwned
-
-const setSharesOwned = sharesOwned => {
-	gameState.sharesOwned = sharesOwned
-}
-
-const changeSharesOwned = (actor, company, quantity) => {
-	let feedback = ""
-	const sharesOwned = getSharesOwned()
-	if (!sharesOwned[actor]) sharesOwned[actor] = []
-	if (!sharesOwned[actor][company]) sharesOwned[actor][company] = 0
-
-	const quantityInt = parseInt(quantity)
-	if (quantityInt < 0 && Math.abs(quantityInt) > sharesOwned[actor][company]) {
-		feedback = `${actor} only has ${sharesOwned[actor][company]}, selling all.\n`
-		sharesOwned[actor][company] = 0
-	} else if (!isNaN(quantityInt)) {
-		sharesOwned[actor][company] += quantityInt
-		if (quantityInt > 0)
-			feedback = `${actor} buys ${quantityInt} ${company} and now has ${sharesOwned[actor][company]}.\n`
-		if (quantityInt < 0) {
-			const quantityAbs = Math.abs(quantityInt)
-			feedback = `${actor} sells ${quantityAbs} ${company} and now has ${sharesOwned[actor][company]}.\n`
-		}
-	}
-
-	setSharesOwned(sharesOwned)
-	return feedback
-}
+/* Buy and sell shares */
 
 const buyShares = (actor, company, quantity, price, source) => {
-	let feedback = changeSharesOwned(actor, company, quantity)
+	let feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
 	const sum = price * quantity
 	if (source) {
-		feedback += "\n" + changeSharesOwned(source, company, quantity * -1)
+		feedback +=
+			"\n" + stockHoldings.changeSharesOwned(source, company, quantity * -1)
 		if (price > 0) {
 			feedback += "\n" + moveCash(actor, source, sum)
 		}
@@ -83,7 +54,7 @@ const buyShares = (actor, company, quantity, price, source) => {
 }
 
 const sellShares = (actor, company, quantity, price) => {
-	let feedback = changeSharesOwned(actor, company, quantity * -1)
+	let feedback = stockHoldings.changeSharesOwned(actor, company, quantity * -1)
 	const sum = price * quantity
 	if (price > 0) {
 		feedback += "\n" + changeCash(actor, sum)
@@ -91,21 +62,7 @@ const sellShares = (actor, company, quantity, price) => {
 	return feedback
 }
 
-const _getCompanyOwners = company => {
-	const sharesOwned = getSharesOwned()
-	const owners = Object.keys(sharesOwned).reduce((accumulator, player) => {
-		const shares = Object.keys(sharesOwned[player]).reduce(
-			(companyShares, share) => {
-				if (share === company) companyShares += sharesOwned[player][share]
-				return companyShares
-			},
-			0
-		)
-		accumulator[player] = shares
-		return accumulator
-	}, [])
-	return owners
-}
+const _getSharesOwned = () => stockHoldings.getSharesOwned()
 
 /* Sets and gets player or company cash. */
 
@@ -153,7 +110,7 @@ const moveCash = (source, target, amount) => {
 
 const _getPlayers = () => {
 	let players = []
-	const sharesOwned = getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned()
 	Object.keys(gameState.cash).forEach(player => {
 		players.push(player)
 	})
@@ -173,11 +130,13 @@ const payDividends = (payingCompany, value) => {
 	if (isNaN(value)) value = 0
 
 	let feedback = ""
-	const sharesOwned = _getCompanyOwners(payingCompany)
+	const sharesOwned = stockHoldings.getCompanyOwners(payingCompany)
 	Object.keys(sharesOwned).forEach(player => {
 		const moneyEarned = sharesOwned[player] * value
-		changeCash(player, moneyEarned)
-		feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${sharesOwned[player]} shares.\n`
+		if (moneyEarned > 0) {
+			changeCash(player, moneyEarned)
+			feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${sharesOwned[player]} shares.\n`
+		}
 	})
 	return feedback
 }
@@ -199,6 +158,7 @@ const payHalfDividends = (payingCompany, totalSum) => {
 }
 
 /* Advance round count. */
+
 const nextRound = roundType => {
 	if (!gameState.round)
 		gameState.round = {
@@ -229,7 +189,7 @@ const _getRound = () => {
 /* Reset game state. */
 
 const resetGameState = () => {
-	gameState.sharesOwned = []
+	stockHoldings.resetHoldings()
 	gameState.cash = []
 	gameState.companyCash = []
 	gameState.values = []
@@ -258,7 +218,7 @@ const _getValue = (company = null) => {
 /* Calculate player value. */
 
 const _calculatePlayerValue = player => {
-	const sharesOwned = getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned()
 	let playerValue = _getCash(player)
 	if (sharesOwned[player]) {
 		playerValue = Object.keys(sharesOwned[player]).reduce((value, company) => {
@@ -330,7 +290,8 @@ const statusBarContent = () => {
 	_getAllCompanies().forEach(company => {
 		const value = _getValue(company)
 		const cash = _getCash(company)
-		barContent.companies += `${company} $${cash} ($${value})\t`
+		barContent.companies += `\t${company} $${cash}`
+		if (value !== 0) barContent.companies += ` ($${value})`
 	})
 	return barContent
 }
@@ -369,22 +330,14 @@ const float = (company, cash) => {
 
 const close = company => {
 	Reflect.deleteProperty(gameState.companyCash, company)
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Reflect.deleteProperty(gameState.sharesOwned[owner], company)
-	})
+	stockHoldings.closeCompany(company)
 	return `Closed ^y${company}^:.\n`
 }
 
 /* Gets all companies in play. */
 
 const _getAllCompanies = () => {
-	const allCompanies = []
-
-	Object.keys(gameState.sharesOwned).forEach(owner => {
-		Object.keys(gameState.sharesOwned[owner]).forEach(company => {
-			allCompanies.push(company)
-		})
-	})
+	const allCompanies = stockHoldings.getCompanies()
 
 	Object.keys(gameState.companyCash).forEach(company => {
 		allCompanies.push(company)
@@ -397,7 +350,7 @@ const _getAllCompanies = () => {
 
 const getHoldingsTable = () => {
 	const companies = _getAllCompanies()
-	const sharesOwned = getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned()
 	const cash = _getAllCash()
 
 	return tables.holdingsTable(companies, sharesOwned, cash)
@@ -406,7 +359,7 @@ const getHoldingsTable = () => {
 const getValuesTable = () => {
 	const players = _getPlayers()
 	const companies = _getAllCompanies()
-	const sharesOwned = getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned()
 	const values = _getValue()
 	const cash = _getCash()
 
@@ -415,7 +368,7 @@ const getValuesTable = () => {
 
 const getCompanyTable = () => {
 	const companies = _getAllCompanies()
-	const sharesOwned = getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned()
 	const values = _getValue()
 	const players = _getPlayers()
 	const companyCash = gameState.companyCash
@@ -458,8 +411,6 @@ module.exports = {
 	getCommandHistory,
 	setCommandHistory,
 	addToHistory,
-	getSharesOwned,
-	changeSharesOwned,
 	buyShares,
 	sellShares,
 	payDividends,
@@ -491,5 +442,7 @@ module.exports = {
 	_getValue,
 	_getPlayers,
 	_calculatePlayerValue,
-	_getRound
+	_getRound,
+	_getSharesOwned,
+	_getAllCompanies
 }

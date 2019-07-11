@@ -10,6 +10,11 @@ const conf = new Configstore("18sh-test")
 
 describe("GameState", () => {
 	describe("setName and getName", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should return the set name", () => {
 			const name = "test-name"
 			gameState._setName(name)
@@ -18,7 +23,11 @@ describe("GameState", () => {
 	})
 
 	describe("createOrLoadGame", () => {
-		conf.clear()
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should create a new game", () => {
 			const response = gameState.createOrLoadGame()
 			expect(response.feedback).to.have.string("Your game name is")
@@ -31,14 +40,20 @@ describe("GameState", () => {
 		})
 	})
 
-	describe("changeSharesOwned", () => {
+	describe("buyShares, sellShares", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		const actor = "MIKKO"
 		const company = "LSWR"
 		const quantity = 3
 
 		it("should increase the share count", () => {
-			let feedback = gameState.changeSharesOwned(actor, company, quantity)
-			let sharesOwned = gameState.getSharesOwned()
+			let sharesOwned = gameState._getSharesOwned()
+			let feedback = gameState.buyShares(actor, company, quantity)
+			sharesOwned = gameState._getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(quantity)
 			expect(feedback).to.have.string(
 				`${actor} buys ${quantity} ${company} and now has ${quantity}.`
@@ -46,10 +61,10 @@ describe("GameState", () => {
 		})
 
 		it("should decrease the share count", () => {
-			const sellQuantity = -2
-			const newTotal = quantity + sellQuantity
-			let feedback = gameState.changeSharesOwned(actor, company, sellQuantity)
-			let sharesOwned = gameState.getSharesOwned()
+			const sellQuantity = 2
+			const newTotal = quantity - sellQuantity
+			let feedback = gameState.sellShares(actor, company, sellQuantity)
+			let sharesOwned = gameState._getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(newTotal)
 			expect(feedback).to.have.string(
 				`${actor} sells ${Math.abs(
@@ -59,10 +74,10 @@ describe("GameState", () => {
 		})
 
 		it("should handle overselling", () => {
-			const sellQuantity = -2
-			const newTotal = quantity + sellQuantity
-			let feedback = gameState.changeSharesOwned(actor, company, sellQuantity)
-			let sharesOwned = gameState.getSharesOwned()
+			const sellQuantity = 2
+			const newTotal = quantity - sellQuantity
+			let feedback = gameState.sellShares(actor, company, sellQuantity)
+			let sharesOwned = gameState._getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(0)
 			expect(feedback).to.have.string(
 				`${actor} only has ${newTotal}, selling all.`
@@ -71,18 +86,22 @@ describe("GameState", () => {
 	})
 
 	describe("dividend", () => {
-		let mikkoCash = 0
-		let nooaCash = 0
-
 		const mikkoShares = 4
 		const nooaShares = 2
 
-		const dividend = 10
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+			gameState.buyShares("MIKKO", "CR", mikkoShares)
+			gameState.buyShares("NOOA", "CR", nooaShares)
+			gameState.buyShares("ANNI", "NBR", nooaShares)
+			gameState.buyShares("CR", "CR", nooaShares)
+		})
 
-		gameState.changeSharesOwned("MIKKO", "CR", mikkoShares)
-		gameState.changeSharesOwned("NOOA", "CR", nooaShares)
-		gameState.changeSharesOwned("ANNI", "NBR", nooaShares)
-		gameState.changeSharesOwned("CR", "CR", nooaShares)
+		let mikkoCash = 0
+		let nooaCash = 0
+
+		const dividend = 10
 
 		it("should pay correct dividends", () => {
 			gameState.payDividends("CR", dividend)
@@ -120,6 +139,11 @@ describe("GameState", () => {
 	})
 
 	describe("setValue and getValue", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should set the value correctly", () => {
 			const company = "LNWR"
 			const value = 134
@@ -145,6 +169,12 @@ describe("GameState", () => {
 	describe("newGame, listGames, open and deleteGame", () => {
 		const gameName1 = "whoops-incident"
 		const gameName2 = "rusty-trains"
+
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should create a new game", () => {
 			let feedback = gameState.newGame(gameName1)
 			expect(feedback).to.have.string(
@@ -212,22 +242,24 @@ describe("GameState", () => {
 	})
 
 	describe("getHoldingsTable", () => {
-		it("should create a correct holdings table", () => {
+		before(() => {
 			conf.clear()
 			gameState.resetGameState()
 
-			gameState.changeSharesOwned("MIKKO", "CR", 4)
+			gameState.buyShares("MIKKO", "CR", 4)
 			gameState.addToHistory("MIKKO buys CR 4")
-			gameState.changeSharesOwned("NOOA", "CR", 2)
+			gameState.buyShares("NOOA", "CR", 2)
 			gameState.addToHistory("NOOA buys CR 2")
-			gameState.changeSharesOwned("MIKKO", "NBR", 2)
+			gameState.buyShares("MIKKO", "NBR", 2)
 			gameState.addToHistory("MIKKO buys NBR 2")
-			gameState.changeSharesOwned("ANNI", "NBR", 1)
+			gameState.buyShares("ANNI", "NBR", 1)
 			gameState.addToHistory("ANNI buys NBR")
 
 			gameState.payDividends("CR", 10)
 			gameState.addToHistory("CR dividend 10")
+		})
 
+		it("should create a correct holdings table", () => {
 			const table = gameState.getHoldingsTable()
 			expect(table[0]).to.deep.equal(["Owner", "Cash", "CR", "NBR"])
 			expect(table[1]).to.deep.equal(["MIKKO", 40, 4, 2])
@@ -237,17 +269,17 @@ describe("GameState", () => {
 	})
 
 	describe("getValuesTable", () => {
-		it("should create a correct values table", () => {
+		before(() => {
 			conf.clear()
 			gameState.resetGameState()
 
-			gameState.changeSharesOwned("MIKKO", "CR", 4)
+			gameState.buyShares("MIKKO", "CR", 4)
 			gameState.addToHistory("MIKKO buys CR 4")
-			gameState.changeSharesOwned("NOOA", "CR", 2)
+			gameState.buyShares("NOOA", "CR", 2)
 			gameState.addToHistory("NOOA buys CR 2")
-			gameState.changeSharesOwned("MIKKO", "NBR", 2)
+			gameState.buyShares("MIKKO", "NBR", 2)
 			gameState.addToHistory("MIKKO buys NBR 2")
-			gameState.changeSharesOwned("ANNI", "NBR", 1)
+			gameState.buyShares("ANNI", "NBR", 1)
 			gameState.addToHistory("ANNI buys NBR")
 
 			gameState.payDividends("CR", 10)
@@ -255,7 +287,9 @@ describe("GameState", () => {
 
 			gameState.setValue("CR", 100)
 			gameState.addToHistory("CR value 100")
+		})
 
+		it("should create a correct values table", () => {
 			const table = gameState.getValuesTable()
 			expect(table[0]).to.deep.equal(["Player", "Cash", "CR", "NBR", "Total"])
 			expect(table[1]).to.deep.equal(["MIKKO", 40, 400, 0, 440])
@@ -265,6 +299,11 @@ describe("GameState", () => {
 	})
 
 	describe("float and close", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should float a company correctly", () => {
 			const startingCash = 710
 			gameState.float("NBR", startingCash)
@@ -278,18 +317,39 @@ describe("GameState", () => {
 			gameState.float("TEST", 1000)
 			expect(gameState._getCash("TEST")).to.equal(1000)
 			gameState.buyShares("MIKKO", "TEST", 10)
-			expect(gameState.getSharesOwned().MIKKO.TEST).to.equal(10)
+			expect(gameState._getSharesOwned().MIKKO.TEST).to.equal(10)
 			gameState.close("TEST")
 			expect(gameState._getCash("TEST")).to.equal(null)
-			expect(gameState.getSharesOwned().MIKKO.TEST).to.be.undefined
+			expect(gameState._getSharesOwned().MIKKO.TEST).to.be.undefined
 		})
 	})
 
 	describe("getCompanyTable", () => {
-		it("should create a correct company values table", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+
+			gameState.buyShares("MIKKO", "CR", 4)
+			gameState.addToHistory("MIKKO buys CR 4")
+			gameState.buyShares("NOOA", "CR", 2)
+			gameState.addToHistory("NOOA buys CR 2")
+			gameState.buyShares("MIKKO", "NBR", 2)
+			gameState.addToHistory("MIKKO buys NBR 2")
+			gameState.buyShares("ANNI", "NBR", 1)
+			gameState.addToHistory("ANNI buys NBR")
+
+			const startingCash = 710
+			gameState.float("NBR", startingCash)
+			gameState.float("CR", startingCash)
+
 			gameState.setValue("NBR", 134)
 			gameState.addToHistory("NBR value 134")
 
+			gameState.setValue("CR", 100)
+			gameState.addToHistory("CR value 100")
+		})
+
+		it("should create a correct company values table", () => {
 			const table = gameState.getCompanyTable()
 			expect(table[0]).to.deep.equal([
 				"Company",
@@ -304,7 +364,7 @@ describe("GameState", () => {
 		})
 
 		it("should work with an unfloated comapny", () => {
-			gameState.changeSharesOwned("MIKKO", "M&C", 4)
+			gameState.buyShares("MIKKO", "M&C", 4)
 			gameState.addToHistory("MIKKO buys M&C 4")
 
 			const table = gameState.getCompanyTable()
@@ -313,6 +373,11 @@ describe("GameState", () => {
 	})
 
 	describe("statusBarContent and calculatePlayerValue", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should return correct content for status bar", () => {
 			const statusBar = gameState.statusBarContent()
 
@@ -328,6 +393,11 @@ describe("GameState", () => {
 	})
 
 	describe("give and take cash", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should handle cash addition correctly", () => {
 			const cashBefore = gameState._getCash("MIKKO")
 			let cashChange = 10
@@ -371,6 +441,11 @@ describe("GameState", () => {
 	})
 
 	describe("getBankRemains and setBankSize", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		const bankSize = 4000
 		it("should set the bank size correctly", () => {
 			gameState.resetGameState()
@@ -400,6 +475,11 @@ describe("GameState", () => {
 	})
 
 	describe("next", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
 		it("should advance the round correctly", () => {
 			gameState.nextRound("SR")
 			expect(gameState._getRound()).to.equal("SR 1")
