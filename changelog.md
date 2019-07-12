@@ -4,7 +4,7 @@
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
 
-## Unreleased (available in `master`)
+## 2.1.0 – 2019-07-12
 - An external cash display support is available! If the environmental variable
 `DISPLAY18SH` has an URL, 18SH will send cash status information there and if
 there's an [18SH display server](https://github.com/msaari/18sh-display)
@@ -13,10 +13,6 @@ listening, it will display the cash totals.
 play. This will remove the company from status bar and cash display.
 - Added: `next` will move the game to next SR or OR. The current round is shown
 in the status bar.
-- Changed: Player value is only displayed in the status bar if it's not the
-same as cash.
-- Changed: Tests have been setup so that individual tests don't depend on other
-tests.
 - Added: If you want to specify a currency other than the default dollar, you
 can use any single-character currency symbol when setting the bank size:
 `banksize £2000` would set pound as the currency.
@@ -28,6 +24,10 @@ payments down).
 cash is not part of the bank.
 - Added: `income` can be used to set player or company income, which is then
 paid out when new OR begins.
+- Changed: Player value is only displayed in the status bar if it's not the
+same as cash.
+- Changed: Tests have been setup so that individual tests don't depend on other
+tests.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

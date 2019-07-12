@@ -161,6 +161,17 @@ Thus if you do
 
 NYC will retain 140 and each NYC share is paid 15.
 
+If you want to change the default setting for half dividend rounding, 18SH
+supports two other methods. To round in favour of company, use the command
+
+	rounding up
+
+and in order to round like it's done in 1837 (calculate exact sum per share,
+then round share payments down – paying 50 would net 25 in company treasury and
+a 30% owner would get 7.5 that rounds down to 7), use
+
+	rounding 1837
+
 ### FLOAT
 	<company> float <number>
 
@@ -184,6 +195,28 @@ the price of one share and then buy the initial shares:
 
 Now GT would have $200 and Mikko has 2 GT shares.
 
+### CLOSE
+	close <company>
+
+Closes the company, removing it from play completely (all shares and cash in
+company treasury gone).
+
+	close BIG4
+
+### NEXT
+	next <SR|OR>
+
+Moves the game to next SR or OR. The current round is shown in the status bar.
+
+### INCOME
+	<player|company> income <amount>
+
+Sets the player or company income to the specified amount. This income is
+automatically paid in the beginning of each OR and happens whenever the command
+`next OR` is used.
+
+	Mikko income 25
+
 ### VALUE
 	<company> value <number>
 
@@ -196,11 +229,23 @@ equivalent:
 	SECR v 67
 
 ### BANKSIZE
-	banksize <number>
+	banksize <currency symbol><number>
 
 Sets the game bank size to the specified value. Once this is set, the status
 bar will show the money remaining in the bank (calculated as bank size minus
 the cash players have).
+
+The default currency is dollars, but you can specify any one-letter currency
+symbol when setting the bank size in order to change currency, like this:
+
+	banksize £2500
+	banksize €2500
+	banksize ₹2500
+
+If you wish to use 1825 style company credits where company money is not
+included in the bank, you can set that up with
+
+	companycredits
 
 ### BANK
 	bank
@@ -260,6 +305,30 @@ A list of these commands.
 
 Alias `exit`. Exits the 18SH shell. The game state is automatically saved after
 every command in the local configstore (`~/.config/configstore/18sh.json`).
+
+## Cash Display
+
+The biggest problem with 18SH is that the cash situation is not visible to
+other players. This can be rectified with [18SH Cash Display](https://github.com/msaari/18sh-display).
+If you have a cash display server running up, you can connect 18SH to it and
+display the cash status on another screen.
+
+For further instructions on setting up the Cash Display, refer to the Cash
+Display GitHub page. 18SH will send the status information automatically to the
+server whenever things change, all you need to to is to tell where the server
+is. This is done by setting an environmental variable that points to the
+server. The exact method depends on your system ([see this helpful guide](https://www.schrodinger.com/kb/1842)).
+On my Mac running zsh, I do it like this:
+
+	export DISPLAY18SH=https://example.com/18sh/
+
+In any case, the name of the environmental variable is `DISPLAY18SH`. Make sure
+you add the `18sh/` to the end of the URL of the server.
+
+See Cash Display GitHub page for version compatibility information: 18SH and
+the server must have compatible version numbers.
+
+![Example image](https://github.com/msaari/18sh-display/raw/master/sample-game.jpg)
 
 ## BGG thread
 
