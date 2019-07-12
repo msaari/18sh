@@ -447,8 +447,8 @@ describe("GameState", () => {
 		})
 
 		const bankSize = 4000
+
 		it("should set the bank size correctly", () => {
-			gameState.resetGameState()
 			gameState.setBankSize(bankSize)
 			expect(gameState._getBankRemains()).to.equal(bankSize)
 
@@ -471,6 +471,14 @@ describe("GameState", () => {
 			gameState.float("LSWR", floatMoney)
 
 			expect(gameState._getBankRemains()).to.equal(bankBefore - floatMoney)
+		})
+
+		it("should set the currency correctly", () => {
+			gameState.setBankSize(bankSize)
+			expect(gameState._getCurrency()).to.equal("$")
+
+			gameState.setBankSize(bankSize, "£")
+			expect(gameState._getCurrency()).to.equal("£")
 		})
 	})
 

@@ -3,7 +3,8 @@
 ## TODO
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
-- Choosing the currency.
+- Automatic private company income when OR changes.
+- Different halfdividend roundings: round for company, calculate exactly round halves for bank.
 
 ## Unreleased (available in `master`)
 - An external cash display support is available! If the environmental variable
@@ -18,6 +19,9 @@ in the status bar.
 same as cash.
 - Changed: Tests have been setup so that individual tests don't depend on other
 tests.
+- Added: If you want to specify a currency other than the default dollar, you
+can use any single-character currency symbol when setting the bank size:
+`banksize £2000` would set pound as the currency.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.

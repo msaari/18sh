@@ -101,10 +101,14 @@ const changeCash = (target, sum) => {
 	if (typeof gameState.companyCash[target] === "undefined") {
 		if (isNaN(gameState.cash[target])) gameState.cash[target] = 0
 		gameState.cash[target] += parseInt(sum)
-		feedback = `${target} now has ^y$${gameState.cash[target]}^\n`
+		feedback = `${target} now has ^y${_getCurrency()}${
+			gameState.cash[target]
+		}^\n`
 	} else {
 		gameState.companyCash[target] += parseInt(sum)
-		feedback = `${target} now has ^y$${gameState.companyCash[target]}^\n`
+		feedback = `${target} now has ^y${_getCurrency()}${
+			gameState.companyCash[target]
+		}^\n`
 	}
 	return feedback
 }
@@ -112,7 +116,7 @@ const changeCash = (target, sum) => {
 const moveCash = (source, target, amount) => {
 	changeCash(source, amount * -1)
 	changeCash(target, amount)
-	return `${source} pays ^y$${amount}^: to ${target}.\n`
+	return `${source} pays ^y${_getCurrency()}${amount}^: to ${target}.\n`
 }
 
 /* Gets all players in the game. */
@@ -144,7 +148,9 @@ const payDividends = (payingCompany, value) => {
 		const moneyEarned = sharesOwned[player] * value
 		if (moneyEarned > 0) {
 			changeCash(player, moneyEarned)
-			feedback += `${payingCompany} pays ${player} ^y$${moneyEarned}^ for ${sharesOwned[player]} shares.\n`
+			feedback += `${payingCompany} pays ${player} ^y${_getCurrency()}${moneyEarned}^ for ${
+				sharesOwned[player]
+			} shares.\n`
 		}
 	})
 	return feedback
@@ -160,7 +166,7 @@ const payHalfDividends = (payingCompany, totalSum) => {
 
 	changeCash(payingCompany, companyRetains)
 
-	feedback = `${payingCompany} retains ^y$${companyRetains}^:.\n`
+	feedback = `${payingCompany} retains ^y${_getCurrency()}${companyRetains}^:.\n`
 	feedback += payDividends(payingCompany, perShare)
 
 	return feedback
@@ -204,7 +210,7 @@ const resetGameState = () => {
 	gameState.values = []
 	gameState.bankSize = null
 	gameState.round = null
-	gameState._setCurrency = "$"
+	_setCurrency("$")
 }
 
 /* Set and get company values. */
@@ -283,25 +289,25 @@ const statusBarContent = () => {
 	}
 	if (gameState.bankSize) {
 		const bank = _getBankRemains()
-		barContent.players += `\tBANK $${bank}`
+		barContent.players += `\tBANK ${_getCurrency()}${bank}`
 	} else {
 		const totalCash = Object.keys(_getAllCash()).reduce((total, player) => {
 			total += _getCash(player)
 			return total
 		}, 0)
-		barContent.players += `\tTOTAL $${totalCash}`
+		barContent.players += `\tTOTAL ${_getCurrency()}${totalCash}`
 	}
 	_getPlayers().forEach(player => {
 		const value = _calculatePlayerValue(player)
 		const cash = _getCash(player)
-		barContent.players += `\t${player} $${cash}`
-		if (value !== cash) barContent.players += ` ($${value})`
+		barContent.players += `\t${player} ${_getCurrency()}${cash}`
+		if (value !== cash) barContent.players += ` (${_getCurrency()}${value})`
 	})
 	_getAllCompanies().forEach(company => {
 		const value = _getValue(company)
 		const cash = _getCash(company)
-		barContent.companies += `\t${company} $${cash}`
-		if (value !== 0) barContent.companies += ` ($${value})`
+		barContent.companies += `\t${company} ${_getCurrency()}${cash}`
+		if (value !== 0) barContent.companies += ` (${_getCurrency()}${value})`
 	})
 	return barContent
 }
@@ -335,7 +341,7 @@ const displayContent = () => {
 
 const float = (company, cash) => {
 	gameState.companyCash[company] = cash
-	return `Floated ^y${company}^ with ^y${cash}^:.\n`
+	return `Floated ^y${company}^ with ^y${_getCurrency()}${cash}^:.\n`
 }
 
 const close = company => {
@@ -394,7 +400,7 @@ const getCompanyTable = () => {
 
 /* Bank size management. */
 
-const setBankSize = (size, currency) => {
+const setBankSize = (size, currency = "$") => {
 	gameState.bankSize = parseInt(size)
 	_setCurrency(currency)
 	return `Bank size set to ^y${_getCurrency()}${size}^\n`
@@ -414,7 +420,7 @@ const _getBankRemains = () => {
 
 const getBankRemains = () => {
 	const bankRemains = _getBankRemains()
-	return `Bank has ^y$${bankRemains}^\n`
+	return `Bank has ^y${_getCurrency()}${bankRemains}^\n`
 }
 
 module.exports = {
@@ -455,5 +461,6 @@ module.exports = {
 	_calculatePlayerValue,
 	_getRound,
 	_getSharesOwned,
-	_getAllCompanies
+	_getAllCompanies,
+	_getCurrency
 }

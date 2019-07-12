@@ -23,7 +23,7 @@ Game actions:
 \t<player|company> ^Wgive^ <amount> to <player|company> – Give cash from someone to someone[2].
 \t<player|company> ^Wcash^ <amount> – Adjust player or company[2] cash.
 \t^Wnext^ <SR|OR> – Moves the game to next SR or OR.
-\t^Wbanksize^ <amount> – Set the bank size.
+\t^Wbanksize^ <currency symbol><amount> – Set the bank size and optionally set the currency.
 
 1: Retain half (rounded down to nearest ten dollars) in company, distribute half to shares.
 2: In order to adjust company cash, company must be floated first. Otherwise 18SH will assume the target is a player.
