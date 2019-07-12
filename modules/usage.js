@@ -23,10 +23,14 @@ Game actions:
 \t<player|company> ^Wgive^ <amount> to <player|company> – Give cash from someone to someone[2].
 \t<player|company> ^Wcash^ <amount> – Adjust player or company[2] cash.
 \t^Wnext^ <SR|OR> – Moves the game to next SR or OR.
-\t^Wbanksize^ <currency symbol><amount> – Set the bank size and optionally set the currency.
 
 1: Retain half (rounded down to nearest ten dollars) in company, distribute half to shares.
 2: In order to adjust company cash, company must be floated first. Otherwise 18SH will assume the target is a player.
+
+Game settings:
+\t^Wbanksize^ <currency symbol><amount> – Set the bank size and optionally set the currency.
+\t^Wrounding^ <up|1837> – Changes the default half dividend rounding. "Up" is in favour of the company, "1837" is the 1837 style with exact sums rounded down when paid.
+\t^Wcompanycredits^ – Switch to using 1825 style company credits, where company cash is not part of the bank.
 
 Game management:
 \t^WlistGames^ – List all available games.

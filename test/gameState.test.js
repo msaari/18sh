@@ -122,10 +122,11 @@ describe("GameState", () => {
 		})
 
 		const halfDividendTotal = 230
-		const halfDividendPerShare = 12
-		const halfDividendForCompany = 110
 
-		it("should handle half dividends", () => {
+		it("should handle half dividends with default rounding", () => {
+			const halfDividendPerShare = 12
+			const halfDividendForCompany = 110
+
 			gameState.payHalfDividends("CR", halfDividendTotal)
 			gameState.addToHistory("CR halfdividend 230")
 
@@ -135,6 +136,35 @@ describe("GameState", () => {
 			expect(gameState._getCash("CR", halfDividendForCompany))
 			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
 			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
+		})
+
+		it("should handle half dividends with UP rounding", () => {
+			const halfDividendPerShare = 11
+			const halfDividendForCompany = 120
+
+			gameState.setParameter("rounding", "UP")
+			gameState.payHalfDividends("CR", halfDividendTotal)
+			gameState.addToHistory("CR halfdividend 230")
+
+			mikkoCash += halfDividendPerShare * mikkoShares
+			nooaCash += halfDividendPerShare * nooaShares
+
+			expect(gameState._getCash("CR", halfDividendForCompany))
+			expect(gameState._getCash("MIKKO")).to.equal(mikkoCash)
+			expect(gameState._getCash("NOOA")).to.equal(nooaCash)
+		})
+
+		it("should handle half dividends with 1837 rounding", () => {
+			// Example from 1837 rules.
+			conf.clear()
+			gameState.resetGameState()
+			gameState.buyShares("MIKKO", "TISZA", 3)
+
+			gameState.setParameter("rounding", "1837")
+			gameState.payHalfDividends("TISZA", 50)
+
+			expect(gameState._getCash("TISZA", 25))
+			expect(gameState._getCash("MIKKO")).to.equal(7)
 		})
 	})
 
@@ -480,6 +510,18 @@ describe("GameState", () => {
 			gameState.setBankSize(bankSize, "£")
 			expect(gameState._getCurrency()).to.equal("£")
 		})
+
+		it("should work correctly with company credits", () => {
+			conf.clear()
+			gameState.resetGameState()
+			gameState.setBankSize(1000)
+
+			expect(gameState._getBankRemains()).to.equal(1000)
+			gameState.float("SECR", 500)
+			expect(gameState._getBankRemains()).to.equal(500)
+			gameState.setParameter("companycredits", true)
+			expect(gameState._getBankRemains()).to.equal(1000)
+		})
 	})
 
 	describe("next", () => {
@@ -497,6 +539,21 @@ describe("GameState", () => {
 			expect(gameState._getRound()).to.equal("OR 1.2")
 			gameState.nextRound("SR")
 			expect(gameState._getRound()).to.equal("SR 2")
+		})
+	})
+
+	describe("setParameter, getParameter", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
+		it("should set and get parameters correctly", () => {
+			gameState.setParameter("rounding", "UP")
+			expect(gameState._getParameter("rounding")).to.equal("UP")
+
+			gameState.setParameter("companycredits", true)
+			expect(gameState._getParameter("companycredits")).to.be.true
 		})
 	})
 })

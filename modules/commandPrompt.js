@@ -207,6 +207,16 @@ const perform = (command, silent = false) => {
 			normalizedCommand = `${action.verb} ${action.object}`
 			addToHistory = true
 			break
+		case "rounding":
+			setParameter("rounding", action.object)
+			normalizedCommand = `${action.verb} ${action.object}`
+			addToHistory = true
+			break
+		case "companycredits":
+			setParameter("companycredits", true)
+			normalizedCommand = `${action.verb}`
+			addToHistory = true
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -335,6 +345,13 @@ const showBankRemains = () => {
 
 const nextRound = round => {
 	const feedback = gameState.nextRound(round)
+	if (!updateMode) {
+		term(feedback)
+	}
+}
+
+const setParameter = (parameter, value) => {
+	const feedback = gameState.setParameter(parameter, value)
 	if (!updateMode) {
 		term(feedback)
 	}

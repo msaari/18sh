@@ -71,6 +71,14 @@ const parse = command => {
 					quantity: 0
 				}
 				break
+			case "companycredits":
+				result = {
+					verb: "companycredits",
+					object: true,
+					subject: null,
+					quantity: 0
+				}
+				break
 			default:
 				result = {
 					verb: null,
@@ -151,6 +159,14 @@ const parse = command => {
 			case "next":
 				result = {
 					verb: "next",
+					object,
+					subject: null,
+					quantity: 0
+				}
+				break
+			case "rounding":
+				result = {
+					verb: "rounding",
 					object,
 					subject: null,
 					quantity: 0
@@ -275,6 +291,14 @@ const parse = command => {
 			case "cash":
 				result = {
 					verb: "cash",
+					object,
+					subject,
+					quantity
+				}
+				break
+			case "set":
+				result = {
+					verb: "set",
 					object,
 					subject,
 					quantity

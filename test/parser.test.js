@@ -266,6 +266,22 @@ describe("Parser", () => {
 				quantity: 0
 			})
 		})
+		it("should return correct for rounding", () => {
+			expect(parser("rounding up")).to.include({
+				verb: "rounding",
+				object: "UP",
+				subject: null,
+				quantity: 0
+			})
+		})
+		it("should return correct for companycredits", () => {
+			expect(parser("companycredits")).to.include({
+				verb: "companycredits",
+				object: true,
+				subject: null,
+				quantity: 0
+			})
+		})
 		it("should return null for unexpected command", () => {
 			expect(parser("not_a_proper_command")).to.include({
 				verb: null,

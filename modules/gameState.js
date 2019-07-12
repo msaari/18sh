@@ -11,7 +11,8 @@ const gameState = {
 	values: [],
 	bankSize: null,
 	undid: "",
-	currency: "$"
+	currency: "$",
+	parameters: []
 }
 
 /* Set and get the game name */
@@ -145,7 +146,7 @@ const payDividends = (payingCompany, value) => {
 	let feedback = ""
 	const sharesOwned = stockHoldings.getCompanyOwners(payingCompany)
 	Object.keys(sharesOwned).forEach(player => {
-		const moneyEarned = sharesOwned[player] * value
+		const moneyEarned = Math.floor(sharesOwned[player] * value)
 		if (moneyEarned > 0) {
 			changeCash(player, moneyEarned)
 			feedback += `${payingCompany} pays ${player} ^y${_getCurrency()}${moneyEarned}^ for ${
@@ -160,9 +161,27 @@ const payHalfDividends = (payingCompany, totalSum) => {
 	let feedback = ""
 	if (isNaN(totalSum)) totalSum = 0
 
-	const halfFloored = Math.floor(totalSum / 20)
-	const companyRetains = halfFloored * 10
-	const perShare = (totalSum - companyRetains) / 10
+	const rounding = _getParameter("rounding")
+	let companyRetains = 0
+	let perShare = 0
+	switch (rounding) {
+		case "UP": {
+			const halfFloored = Math.ceil(totalSum / 20)
+			companyRetains = halfFloored * 10
+			perShare = (totalSum - companyRetains) / 10
+			break
+		}
+		case "1837": {
+			companyRetains = totalSum / 2
+			perShare = (totalSum - companyRetains) / 10
+			break
+		}
+		default: {
+			const halfFloored = Math.floor(totalSum / 20)
+			companyRetains = halfFloored * 10
+			perShare = (totalSum - companyRetains) / 10
+		}
+	}
 
 	changeCash(payingCompany, companyRetains)
 
@@ -210,6 +229,7 @@ const resetGameState = () => {
 	gameState.values = []
 	gameState.bankSize = null
 	gameState.round = null
+	gameState.parameters = []
 	_setCurrency("$")
 }
 
@@ -407,21 +427,33 @@ const setBankSize = (size, currency = "$") => {
 }
 
 const _getBankRemains = () => {
-	const cashReserves = {
-		..._getCash(),
-		..._getCompanyCash()
-	}
-	const playerCash = Object.keys(cashReserves).reduce((total, player) => {
+	const cashReserves = _getParameter("companycredits")
+		? {
+				..._getCash()
+		  }
+		: {
+				..._getCash(),
+				..._getCompanyCash()
+		  }
+	const cashInPlay = Object.keys(cashReserves).reduce((total, player) => {
 		total += cashReserves[player]
 		return total
 	}, 0)
-	return gameState.bankSize - playerCash
+	return gameState.bankSize - cashInPlay
 }
 
 const getBankRemains = () => {
 	const bankRemains = _getBankRemains()
 	return `Bank has ^y${_getCurrency()}${bankRemains}^\n`
 }
+
+/* Parameter adjustment. */
+
+const setParameter = (parameter, value = null) => {
+	if (value) gameState.parameters[parameter] = value
+}
+
+const _getParameter = parameter => gameState.parameters[parameter]
 
 module.exports = {
 	getName,
@@ -451,6 +483,7 @@ module.exports = {
 	float,
 	close,
 	nextRound,
+	setParameter,
 	_getBankRemains,
 	_getCash,
 	_getCompanyCash,
@@ -462,5 +495,6 @@ module.exports = {
 	_getRound,
 	_getSharesOwned,
 	_getAllCompanies,
-	_getCurrency
+	_getCurrency,
+	_getParameter
 }
