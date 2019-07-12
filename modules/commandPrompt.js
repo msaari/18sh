@@ -77,7 +77,7 @@ const commandPrompt = () => {
 					process.exit()
 					break
 				case "help":
-					help()
+					term(usage())
 					commandPrompt()
 					break
 				default:
@@ -110,36 +110,39 @@ const perform = (command, silent = false) => {
 	let normalizedCommand = ""
 	switch (action.verb) {
 		case "holdings":
-			holdings()
+			term(gameState.getHoldingsTable() + "\n")
 			addToHistory = false
 			break
 		case "values":
-			values()
+			term(gameState.getValuesTable() + "\n")
 			addToHistory = false
 			break
 		case "listGames":
-			listGames()
+			echoToTerm(gameState.listGames())
 			addToHistory = false
 			break
 		case "open":
-			open(action.object)
+			echoToTerm(gameState.open(action.object.toLowerCase()))
+			_updateGameState(gameState.getCommandHistory())
 			addToHistory = false
 			break
 		case "delete":
-			deleteGame(action.object)
+			echoToTerm(gameState.deleteGame(action.object.toLowerCase()))
 			addToHistory = false
 			break
 		case "start":
-			newGame(action.object)
+			echoToTerm(gameState.newGame(action.object.toLowerCase()))
 			addToHistory = false
 			break
 		case "buy":
-			buy(
-				action.subject,
-				action.object,
-				action.quantity,
-				action.price,
-				action.source
+			echoToTerm(
+				gameState.buyShares(
+					action.subject,
+					action.object,
+					action.quantity,
+					action.price,
+					action.source
+				)
 			)
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} ${action.object}`
 			if (action.price) normalizedCommand += ` @${action.price}`
@@ -147,63 +150,72 @@ const perform = (command, silent = false) => {
 			addToHistory = true
 			break
 		case "sell":
-			sell(action.subject, action.object, action.quantity, action.price)
+			echoToTerm(
+				gameState.sellShares(
+					action.subject,
+					action.object,
+					action.quantity,
+					action.price
+				)
+			)
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} ${action.object}`
 			if (action.price) normalizedCommand += ` @${action.price}`
 			addToHistory = true
 			break
 		case "dividend":
-			dividend(action.subject, action.quantity)
+			echoToTerm(gameState.payDividends(action.subject, action.quantity))
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "halfdividend":
-			halfdividend(action.subject, action.quantity)
+			echoToTerm(gameState.payHalfDividends(action.subject, action.quantity))
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "value":
-			value(action.subject, action.quantity)
+			echoToTerm(gameState.setValue(action.subject, action.quantity))
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "give":
-			give(action.subject, action.object, action.quantity)
+			echoToTerm(
+				gameState.moveCash(action.subject, action.object, action.quantity)
+			)
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity} to ${action.object}`
 			addToHistory = true
 			break
 		case "cash":
-			cash(action.subject, action.quantity)
+			echoToTerm(gameState.changeCash(action.subject, action.quantity))
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "float":
-			float(action.subject, action.quantity)
+			echoToTerm(gameState.float(action.subject, action.quantity))
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		case "close":
-			close(action.object)
+			echoToTerm(gameState.close(action.object))
 			normalizedCommand = `${action.verb} ${action.object}`
 			addToHistory = true
 			break
 		case "banksize":
-			bankSize(action.quantity, action.object)
+			echoToTerm(gameState.setBankSize(action.quantity, action.object))
 			normalizedCommand = `${action.verb} `
 			if (action.object) normalizedCommand += `${action.object}`
 			normalizedCommand += `${action.quantity}`
 			addToHistory = action.quantity
 			break
 		case "bank":
-			showBankRemains()
+			echoToTerm(gameState.getBankRemains())
 			addToHistory = false
 			break
 		case "companies":
-			companies()
+			term(gameState.getCompanyTable() + "\n")
 			addToHistory = false
 			break
 		case "next":
-			nextRound(action.object)
+			echoToTerm(gameState.nextRound(action.object))
 			normalizedCommand = `${action.verb} ${action.object}`
 			addToHistory = true
 			break
@@ -215,6 +227,11 @@ const perform = (command, silent = false) => {
 		case "companycredits":
 			setParameter("companycredits", true)
 			normalizedCommand = `${action.verb}`
+			addToHistory = true
+			break
+		case "income":
+			echoToTerm(gameState.setIncome(action.subject, action.quantity))
+			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
 		default:
@@ -230,135 +247,14 @@ const perform = (command, silent = false) => {
 	if (!updateMode) updateStatusBar()
 }
 
-const buy = (buyer, object, count = 1, price = 0, source = null) => {
-	const feedback = gameState.buyShares(buyer, object, count, price, source)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const sell = (seller, object, count = 1, price = 0) => {
-	const feedback = gameState.sellShares(seller, object, count, price)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const holdings = () => {
-	term(gameState.getHoldingsTable() + "\n")
-}
-
-const values = () => {
-	term(gameState.getValuesTable() + "\n")
-}
-
-const companies = () => {
-	term(gameState.getCompanyTable() + "\n")
-}
-
-const dividend = (payingCompany, value) => {
-	const feedback = gameState.payDividends(payingCompany, value)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const halfdividend = (payingCompany, value) => {
-	const feedback = gameState.payHalfDividends(payingCompany, value)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const value = (company, value) => {
-	const feedback = gameState.setValue(company, value)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const listGames = () => {
-	const feedback = gameState.listGames()
-	term(feedback)
-}
-
-const deleteGame = name => {
-	name = name.toLowerCase()
-	const feedback = gameState.deleteGame(name)
-	term(feedback)
-}
-
-const newGame = name => {
-	name = name.toLowerCase()
-	const feedback = gameState.newGame(name)
-	term(feedback)
-}
-
-const open = name => {
-	name = name.toLowerCase()
-	const feedback = gameState.open(name)
-	_updateGameState(gameState.getCommandHistory())
-	term(feedback)
-}
-
-const give = (subject, object, quantity) => {
-	const feedback = gameState.moveCash(subject, object, quantity)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const cash = (target, quantity) => {
-	const feedback = gameState.changeCash(target, quantity)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const float = (company, cash) => {
-	const feedback = gameState.float(company, cash)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const close = company => {
-	const feedback = gameState.close(company)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const bankSize = (size, currency) => {
-	const feedback = gameState.setBankSize(size, currency)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const showBankRemains = () => {
-	const feedback = gameState.getBankRemains()
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
-const nextRound = round => {
-	const feedback = gameState.nextRound(round)
-	if (!updateMode) {
-		term(feedback)
-	}
-}
-
 const setParameter = (parameter, value) => {
-	const feedback = gameState.setParameter(parameter, value)
+	echoToTerm(gameState.setParameter(parameter, value))
+}
+
+const echoToTerm = feedback => {
 	if (!updateMode) {
 		term(feedback)
 	}
-}
-
-const help = () => {
-	term(usage())
 }
 
 module.exports = {
