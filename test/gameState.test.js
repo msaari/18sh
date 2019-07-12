@@ -542,6 +542,37 @@ describe("GameState", () => {
 		})
 	})
 
+	describe("income", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+		})
+
+		it("should set the income correctly", () => {
+			gameState.setIncome("MIKKO", 25)
+			expect(gameState._getIncome("MIKKO")).to.equal(25)
+
+			const feedback = gameState.setIncome("MIKKO", "NaN")
+			expect(feedback).to.equal(
+				`^rCan't set income: "NaN" is not a number.^:\n`
+			)
+
+			gameState.setIncome("MIKKO", 0)
+			expect(gameState._getIncome("MIKKO")).to.equal(0)
+		})
+
+		it("should pay out the income correctly", () => {
+			gameState.changeCash("MIKKO", 10)
+			const cashBefore = gameState._getCash("MIKKO")
+			gameState.setIncome("MIKKO", 25)
+			expect(gameState._getIncome("MIKKO")).to.equal(25)
+			const feedback = gameState.nextRound("OR")
+			expect(feedback).to.include("MIKKO earns ^y$25^: income")
+			const cashAfter = gameState._getCash("MIKKO")
+			expect(cashAfter).to.equal(cashBefore + 25)
+		})
+	})
+
 	describe("setParameter, getParameter", () => {
 		before(() => {
 			conf.clear()

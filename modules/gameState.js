@@ -12,7 +12,22 @@ const gameState = {
 	bankSize: null,
 	undid: "",
 	currency: "$",
-	parameters: []
+	parameters: [],
+	income: []
+}
+
+/* Reset game state. */
+
+const resetGameState = () => {
+	stockHoldings.resetHoldings()
+	gameState.cash = []
+	gameState.companyCash = []
+	gameState.values = []
+	gameState.bankSize = null
+	gameState.round = null
+	gameState.parameters = []
+	gameState.income = []
+	_setCurrency("$")
 }
 
 /* Set and get the game name */
@@ -194,6 +209,7 @@ const payHalfDividends = (payingCompany, totalSum) => {
 /* Advance round count. */
 
 const nextRound = roundType => {
+	let feedback = `It's now ^y${_getRound()}^:.\n`
 	if (!gameState.round)
 		gameState.round = {
 			type: "SR",
@@ -208,8 +224,9 @@ const nextRound = roundType => {
 	if (roundType === "OR") {
 		gameState.round.type = "OR"
 		gameState.round.orNumber += 1
+		feedback += _payIncome()
 	}
-	return `It's now ^y${_getRound()}^:.\n`
+	return feedback
 }
 
 const _getRound = () => {
@@ -218,19 +235,6 @@ const _getRound = () => {
 		return `${gameState.round.type} ${gameState.round.srNumber}`
 	}
 	return `${gameState.round.type} ${gameState.round.srNumber}.${gameState.round.orNumber}`
-}
-
-/* Reset game state. */
-
-const resetGameState = () => {
-	stockHoldings.resetHoldings()
-	gameState.cash = []
-	gameState.companyCash = []
-	gameState.values = []
-	gameState.bankSize = null
-	gameState.round = null
-	gameState.parameters = []
-	_setCurrency("$")
 }
 
 /* Set and get company values. */
@@ -444,7 +448,33 @@ const _getBankRemains = () => {
 
 const getBankRemains = () => {
 	const bankRemains = _getBankRemains()
-	return `Bank has ^y${_getCurrency()}${bankRemains}^\n`
+	return `Bank has ^y${_getCurrency()}${bankRemains}^:.\n`
+}
+
+/* Income management. */
+
+const setIncome = (target, amount) => {
+	if (isNaN(parseInt(amount)))
+		return `^rCan't set income: "${amount}" is not a number.^:\n`
+	gameState.income[target] = amount
+	return `Income for ^y${target}^: is ^y${_getCurrency()}${amount}^:.\n`
+}
+
+const _getIncome = target => gameState.income[target]
+
+const _payIncome = () => {
+	const allParties = _getPlayers().concat(_getAllCompanies())
+
+	let feedback = ""
+	allParties.forEach(target => {
+		const income = _getIncome(target)
+		if (income > 0) {
+			changeCash(target, income)
+			feedback += `${target} earns ^y${_getCurrency()}${income}^: income.\n`
+		}
+	})
+
+	return feedback
 }
 
 /* Parameter adjustment. */
@@ -484,6 +514,7 @@ module.exports = {
 	close,
 	nextRound,
 	setParameter,
+	setIncome,
 	_getBankRemains,
 	_getCash,
 	_getCompanyCash,
@@ -496,5 +527,6 @@ module.exports = {
 	_getSharesOwned,
 	_getAllCompanies,
 	_getCurrency,
-	_getParameter
+	_getParameter,
+	_getIncome
 }

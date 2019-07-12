@@ -282,6 +282,20 @@ describe("Parser", () => {
 				quantity: 0
 			})
 		})
+		it("should return correct for income", () => {
+			expect(parser("mikko income 25")).to.include({
+				verb: "income",
+				object: null,
+				subject: "MIKKO",
+				quantity: 25
+			})
+			expect(parser("mikko income 0")).to.include({
+				verb: "income",
+				object: null,
+				subject: "MIKKO",
+				quantity: 0
+			})
+		})
 		it("should return null for unexpected command", () => {
 			expect(parser("not_a_proper_command")).to.include({
 				verb: null,

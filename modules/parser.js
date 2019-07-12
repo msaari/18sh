@@ -304,6 +304,14 @@ const parse = command => {
 					quantity
 				}
 				break
+			case "income":
+				result = {
+					verb: "income",
+					object,
+					subject,
+					quantity
+				}
+				break
 			default:
 				result = {
 					verb: null,

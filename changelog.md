@@ -3,8 +3,6 @@
 ## TODO
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
-- Automatic private company income when OR changes.
-- Company credits.
 
 ## Unreleased (available in `master`)
 - An external cash display support is available! If the environmental variable
@@ -26,8 +24,10 @@ can use any single-character currency symbol when setting the bank size:
 favour of the company (as in 1858, 1869, 1870, 18??, 18EZ, 18GM and 18NK),
 `rounding 1837` for 1837 style rounding (count exact sum, round dividend
 payments down).
-- Added: `companycash` switches the game to use company credits, where company
+- Added: `companycredits` switches the game to use company credits, where company
 cash is not part of the bank.
+- Added: `income` can be used to set player or company income, which is then
+paid out when new OR begins.
 
 ## 2.0.0 – 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.
