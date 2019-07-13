@@ -339,7 +339,8 @@ const statusBarContent = () => {
 const displayContent = () => {
 	let displayContent = {
 		round: _getRound(),
-		cash: {}
+		cash: {},
+		currency: _getCurrency()
 	}
 	if (gameState.bankSize) {
 		displayContent.cash.bank = _getBankRemains()
