@@ -2,7 +2,10 @@
 
 var sharesOwned = {}
 
-const getSharesOwned = () => sharesOwned
+const getSharesOwned = (player = null) => {
+	if (player) return sharesOwned[player]
+	return sharesOwned
+}
 
 const setSharesOwned = newSharesOwned => {
 	sharesOwned = newSharesOwned

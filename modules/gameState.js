@@ -258,11 +258,11 @@ const _getValue = (company = null) => {
 /* Calculate player value. */
 
 const _calculatePlayerValue = player => {
-	const sharesOwned = stockHoldings.getSharesOwned()
+	const sharesOwned = stockHoldings.getSharesOwned(player)
 	let playerValue = _getCash(player)
-	if (sharesOwned[player]) {
-		playerValue = Object.keys(sharesOwned[player]).reduce((value, company) => {
-			const companyValue = sharesOwned[player][company] * _getValue(company)
+	if (sharesOwned) {
+		playerValue = Object.keys(sharesOwned).reduce((value, company) => {
+			const companyValue = sharesOwned[company] * _getValue(company)
 			return value + companyValue
 		}, playerValue)
 	}
