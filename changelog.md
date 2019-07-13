@@ -4,8 +4,11 @@
 - Add more tests and more error handling to better survive wrong instructions
 like buying too many shares.
 - Command to dump history to a text file.
+- Switch from configstore to conf.
 
 ## Unreleased (in `master` branch)
+
+## 2.2.0 – 2019-07-13
 - Added: The currency symbol is passed to the cash display.
 - Added: You can leave comments in the game log. Anything after a `#` symbol is
 considered a comment and will be saved in the log, but not parsed.

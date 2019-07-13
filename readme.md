@@ -334,6 +334,20 @@ the server must have compatible version numbers.
 
 For discussion about 18SH, see [the BoardGameGeek 18SH thread](https://boardgamegeek.com/thread/2225619/18sh-command-line-replacement-spreadsheets).
 
+## Dependencies
+
+18SH doesn't have many dependencies:
+
+- [terminal-kit](https://github.com/cronvel/terminal-kit) is used to handle the user interface.
+- [cli-table](https://github.com/Automattic/cli-table) is used to print out pretty tables.
+- [configstore](https://github.com/yeoman/configstore) stores the game data.
+- [axios](https://github.com/axios/axios) is used to send the data to the cash display server.
+
+During development, [eslint](https://github.com/eslint/eslint) and
+[prettier](https://github.com/prettier/prettier) are used and the testing and
+code coverage is done with a combo of [mocha](https://github.com/mochajs/mocha),
+[chai](https://github.com/chaijs/chai) and [nyc](https://github.com/istanbuljs/nyc).
+
 ## Changelog
 
 See [changelog.md](changelog.md) in the repo for change history, todo list and
