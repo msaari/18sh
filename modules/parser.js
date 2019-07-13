@@ -1,6 +1,12 @@
 "use strict"
 
 const parse = command => {
+	const commentSplit = command.split("#", 2)
+	let comment = null
+	if (commentSplit.length > 1) {
+		command = commentSplit[0].trim()
+		comment = commentSplit[1].trim()
+	}
 	const parts = command.split(" ")
 	let result = {}
 	if (parts.length == 1) {
@@ -17,7 +23,8 @@ const parse = command => {
 					verb: "holdings",
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "v":
@@ -30,7 +37,8 @@ const parse = command => {
 					verb: "values",
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "l":
@@ -41,7 +49,8 @@ const parse = command => {
 					verb: "listGames",
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "b":
@@ -52,7 +61,8 @@ const parse = command => {
 					verb: "bank",
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "c":
@@ -68,7 +78,8 @@ const parse = command => {
 					verb: "companies",
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "companycredits":
@@ -76,7 +87,8 @@ const parse = command => {
 					verb: "companycredits",
 					object: true,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			default:
@@ -84,7 +96,8 @@ const parse = command => {
 					verb: null,
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 		}
 	}
@@ -100,7 +113,8 @@ const parse = command => {
 					verb: "open",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "delete":
@@ -108,7 +122,8 @@ const parse = command => {
 					verb: "delete",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "start":
@@ -116,7 +131,8 @@ const parse = command => {
 					verb: "start",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "b":
@@ -141,7 +157,8 @@ const parse = command => {
 					verb: "banksize",
 					object,
 					subject: null,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			}
@@ -150,7 +167,8 @@ const parse = command => {
 					verb: "close",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "n":
@@ -161,7 +179,8 @@ const parse = command => {
 					verb: "next",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			case "rounding":
@@ -169,7 +188,8 @@ const parse = command => {
 					verb: "rounding",
 					object,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 				break
 			default:
@@ -177,7 +197,8 @@ const parse = command => {
 					verb: null,
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 		}
 	}
@@ -202,7 +223,8 @@ const parse = command => {
 					subject,
 					quantity,
 					price: 0,
-					source: null
+					source: null,
+					comment
 				}
 				break
 			case "s":
@@ -214,7 +236,8 @@ const parse = command => {
 					object,
 					subject,
 					quantity,
-					price: 0
+					price: 0,
+					comment
 				}
 				break
 			case "d":
@@ -234,7 +257,8 @@ const parse = command => {
 					verb: "dividend",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "h":
@@ -254,7 +278,8 @@ const parse = command => {
 					verb: "halfdividend",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "v":
@@ -270,7 +295,8 @@ const parse = command => {
 					verb: "value",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "f":
@@ -282,7 +308,8 @@ const parse = command => {
 					verb: "float",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "c":
@@ -293,7 +320,8 @@ const parse = command => {
 					verb: "cash",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "set":
@@ -301,7 +329,8 @@ const parse = command => {
 					verb: "set",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			case "income":
@@ -309,7 +338,8 @@ const parse = command => {
 					verb: "income",
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			default:
@@ -317,7 +347,8 @@ const parse = command => {
 					verb: null,
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 		}
 	}
@@ -366,7 +397,8 @@ const parse = command => {
 					subject,
 					quantity,
 					price,
-					source
+					source,
+					comment
 				}
 				break
 			}
@@ -400,7 +432,8 @@ const parse = command => {
 					object,
 					subject,
 					quantity,
-					price
+					price,
+					comment
 				}
 				break
 			}
@@ -420,7 +453,8 @@ const parse = command => {
 					verb,
 					object,
 					subject,
-					quantity
+					quantity,
+					comment
 				}
 				break
 			}
@@ -429,7 +463,8 @@ const parse = command => {
 					verb: null,
 					object: null,
 					subject: null,
-					quantity: 0
+					quantity: 0,
+					comment
 				}
 		}
 	}

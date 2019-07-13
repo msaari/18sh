@@ -106,6 +106,8 @@ const perform = (command, silent = false) => {
 	updateMode = silent
 	const action = parser(command)
 
+	if (!action.verb && action.comment) action.verb = "comment"
+
 	var addToHistory = false
 	let normalizedCommand = ""
 	switch (action.verb) {
@@ -234,6 +236,9 @@ const perform = (command, silent = false) => {
 			normalizedCommand = `${action.subject} ${action.verb} ${action.quantity}`
 			addToHistory = true
 			break
+		case "comment":
+			addToHistory = true
+			break
 		default:
 			term("^rUnrecognized command!^\n")
 			addToHistory = false
@@ -242,6 +247,7 @@ const perform = (command, silent = false) => {
 	if (updateMode) addToHistory = false
 
 	if (addToHistory) {
+		if (action.comment) normalizedCommand += ` # ${action.comment}`
 		gameState.addToHistory(normalizedCommand.trim())
 	}
 	if (!updateMode) updateStatusBar()

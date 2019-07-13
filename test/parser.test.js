@@ -296,6 +296,22 @@ describe("Parser", () => {
 				quantity: 0
 			})
 		})
+		it("should handle comments correctly", () => {
+			expect(parser("# comment")).to.include({
+				verb: null,
+				object: null,
+				subject: null,
+				quantity: 0,
+				comment: "comment"
+			})
+			expect(parser("gt cash -20 # upgrades Chicago")).to.include({
+				verb: "cash",
+				object: null,
+				subject: "GT",
+				quantity: -20,
+				comment: "upgrades Chicago"
+			})
+		})
 		it("should return null for unexpected command", () => {
 			expect(parser("not_a_proper_command")).to.include({
 				verb: null,

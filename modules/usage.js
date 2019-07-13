@@ -42,7 +42,11 @@ Game management:
 Other commands:
 \t^Wquit^:, ^Wexit^ – Leave the game.
 \t^Wundo^ – Undo the last game state changing command.
-	`.trim()
+
+Comments:
+\t^W#^ <comment> – Leave a comment in the game log.
+\t<command> ^W#^ <comment> – Leave a comment with the command.
+`.trim()
 	return `\n${usage}\n\n`
 }
 
