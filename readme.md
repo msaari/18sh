@@ -2,7 +2,7 @@
 
 ![Travis build status](https://img.shields.io/travis/msaari/18sh.svg?style=flat-square)
 
-18SH is designed as a replacement for the spreadsheets used to calcualte end of
+18SH is designed as a replacement for the spreadsheets used to calculate end of
 game scores in 18xx games. Spreadsheets are fine, especially if they're well
 designed with formulas to avoid entering the same data twice, but I wanted to
 try how an interactive shell would work.
@@ -17,7 +17,7 @@ but it cannot track company value automatically or enforce certificate limit.
 compatibility is only guaranteed within major versions. If the first number
 changes in the version number, your saved games won't work anymore.
 
-## Installing
+## Installing & requirements
 
 Clone from GitHub or download the files. The GitHub `master` is the current
 state of development and not always stable. For stable releases, get the
@@ -27,6 +27,11 @@ install the Node modules with
 	npm install
 
 and you're ready to go. 18SH requires [Node.js](https://nodejs.org/en/download/).
+
+You also need a xterm-compatible terminal. On Linux, there are plenty of
+options. On Mac OS, I highly recommend [iTerm2](https://www.iterm2.com/). On
+Windows, if the regular command line does not work, you can use
+[Terminator](https://github.com/software-jessies-org/jessies/wiki/Terminator).
 
 ## Upgrading
 
@@ -305,6 +310,15 @@ A list of these commands.
 
 Alias `exit`. Exits the 18SH shell. The game state is automatically saved after
 every command in the local configstore (`~/.config/configstore/18sh.json`).
+
+## Comments
+	# <comment>
+	<command> # <comment>
+
+Anything after a # is considered a comment and is ignored by parser, but is
+stored in the command history. You can use comments to keep a log of game
+events, for example, or to explain why cash is moved from place to place
+for future reference.
 
 ## Cash Display
 
