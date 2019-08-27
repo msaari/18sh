@@ -8,6 +8,9 @@ like buying too many shares.
 
 ## Unreleased (in `master` branch)
 
+## 2.2.1 – 2019-08-27
+- Security update to fix a vulnerability in eslint-utils.
+
 ## 2.2.0 – 2019-07-13
 - Added: The currency symbol is passed to the cash display.
 - Added: You can leave comments in the game log. Anything after a `#` symbol is
