@@ -5,18 +5,19 @@
 like buying too many shares.
 - Command to dump history to a text file.
 - Switch from configstore to conf.
+- Support for half-shares.
 
 ## Unreleased (in `master` branch)
 
-## 2.2.1 – 2019-08-27
+## 2.2.1 - 2019-08-27
 - Security update to fix a vulnerability in eslint-utils.
 
-## 2.2.0 – 2019-07-13
+## 2.2.0 - 2019-07-13
 - Added: The currency symbol is passed to the cash display.
 - Added: You can leave comments in the game log. Anything after a `#` symbol is
 considered a comment and will be saved in the log, but not parsed.
 
-## 2.1.0 – 2019-07-12
+## 2.1.0 - 2019-07-12
 - An external cash display support is available! If the environmental variable
 `DISPLAY18SH` has an URL, 18SH will send cash status information there and if
 there's an [18SH display server](https://github.com/msaari/18sh-display)
@@ -41,7 +42,7 @@ same as cash.
 - Changed: Tests have been setup so that individual tests don't depend on other
 tests.
 
-## 2.0.0 – 2019-07-08
+## 2.0.0 - 2019-07-08
 - Removed: `give` and `take` have been replaced by `cash`.
 - Added: `cash` can be used to adjust player cash. `Mikko cash 100` adds money
 and `Mikko cash -100` subtracts money.
@@ -52,7 +53,7 @@ and if source is specified, the source sells the share and gets the money.
 - Removed: Doing `CR dividend prev` is no longer possible. It was a bit
 complicated and actually not very helpful in practise, so I dropped it.
 
-## 1.2.0 – 2019-06-29
+## 1.2.0 - 2019-06-29
 - Added: Companies can now have cash as well. Company cash will appear in the
 status bar, on a separate row with a different background color.
 - Added: Companies can own shares and get paid dividends.
@@ -61,10 +62,10 @@ of shareholders.
 - Fixed: Status bar works better if gets long enough to cover multiple lines.
 - Fixed: No more `COMPANY pays PLAYER $0 for undefined shares.` notices.
 
-## 1.1.1 – 2019-06-23
+## 1.1.1 - 2019-06-23
 - Removed: One console.log() that was left in the code.
 
-## 1.1.0 – 2019-06-23
+## 1.1.0 - 2019-06-23
 - Added: Instead of sum, dividends can be now paid as `prev` to repeat the
 previous dividend payment for the company.
 - Added: Automated tests.
