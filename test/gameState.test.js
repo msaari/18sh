@@ -352,6 +352,47 @@ describe("GameState", () => {
 			expect(gameState._getCash("TEST")).to.equal(null)
 			expect(gameState._getSharesOwned().MIKKO.TEST).to.be.undefined
 		})
+
+		it("should close a company with shares correctly", () => {
+			gameState.float("GT", 0)
+			gameState.buyShares("GT", "GT", 10, 0)
+			gameState.buyShares("PIOTR", "GT", 5, 80, "GT")
+			gameState.buyShares("LIOR", "GT", 5, 80, "GT")
+			gameState.close("GT")
+			expect(gameState._getSharesOwned().PIOTR.GT).to.be.undefined
+			expect(gameState._getSharesOwned().GT).to.be.undefined
+			expect(gameState._getCash("GT")).to.equal(null)
+		})
+	})
+
+	describe("remove", () => {
+		before(() => {
+			conf.clear()
+			gameState.resetGameState()
+			gameState.float("TEST", 1000)
+		})
+
+		it("should remove a player correctly", () => {
+			gameState.setBankSize(2000)
+			expect(gameState._getBankRemains()).to.equal(1000)
+
+			gameState.changeCash("MIKKO", 100)
+			expect(gameState._getCash("MIKKO")).to.equal(100)
+			gameState.buyShares("MIKKO", "TEST", 1, 100)
+			expect(gameState._getCash("MIKKO")).to.equal(0)
+			expect(gameState._getSharesOwned().MIKKO.TEST).to.equal(1)
+			gameState.remove("MIKKO")
+			expect(gameState._getCash("MIKKO")).to.equal(null)
+			expect(gameState._getSharesOwned().MIKKO).to.be.undefined
+			expect(gameState._getBankRemains()).to.equal(1000)
+		})
+
+		it("should not remove a company", () => {
+			expect(gameState._getCash("TEST")).to.equal(1000)
+			gameState.remove("TEST")
+			expect(gameState._getCash("TEST")).to.equal(1000)
+			expect(gameState._getBankRemains()).to.equal(1000)
+		})
 	})
 
 	describe("getCompanyTable", () => {

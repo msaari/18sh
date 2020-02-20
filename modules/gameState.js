@@ -376,6 +376,13 @@ const close = company => {
 	return `Closed ^y${company}^:.\n`
 }
 
+/* Removes a player */
+
+const remove = player => {
+	Reflect.deleteProperty(gameState.cash, player)
+	stockHoldings.removePlayer(player)
+}
+
 /* Gets all companies in play. */
 
 const _getAllCompanies = () => {
@@ -514,6 +521,7 @@ module.exports = {
 	setValue,
 	float,
 	close,
+	remove,
 	nextRound,
 	setParameter,
 	setIncome,

@@ -20,6 +20,7 @@ Game actions:
 \t<company> ^Wvalue^ <amount> – Set company share value.
 \t<company> ^Wfloat^ <amount> – Start a company and give it cash from the bank.
 \t^Wclose^ <company> – Removes company cash and shares from play.
+\t^Wremove^ <player> – Removes a player from the game.
 \t<player|company> ^Wgive^ <amount> to <player|company> – Give cash from someone to someone[2].
 \t<player|company> ^Wcash^ <amount> – Adjust player or company[2] cash.
 \t^Wnext^ <SR|OR> – Moves the game to next SR or OR.

@@ -60,6 +60,12 @@ const closeCompany = company => {
 	setSharesOwned(sharesOwned)
 }
 
+const removePlayer = player => {
+	const sharesOwned = getSharesOwned()
+	Reflect.deleteProperty(sharesOwned, player)
+	setSharesOwned(sharesOwned)
+}
+
 const getCompanies = () => {
 	const companyList = []
 	const sharesOwned = getSharesOwned()
@@ -80,6 +86,7 @@ module.exports = {
 	getCompanyOwners,
 	changeSharesOwned,
 	closeCompany,
+	removePlayer,
 	getCompanies,
 	resetHoldings
 }

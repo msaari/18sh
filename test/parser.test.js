@@ -326,5 +326,13 @@ describe("Parser", () => {
 				quantity: 0
 			})
 		})
+		it("should return correct for remove", () => {
+			expect(parser("remove mikko")).to.include({
+				verb: "remove",
+				object: "MIKKO",
+				subject: null,
+				quantity: 0
+			})
+		})
 	})
 })

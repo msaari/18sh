@@ -208,6 +208,13 @@ company treasury gone).
 
 	close BIG4
 
+### REMOVE
+	remove <player>
+
+Removes a player from the game, removing their cash and share holdings.
+
+	remove Mikko
+
 ### NEXT
 	next <SR|OR>
 
@@ -369,6 +376,6 @@ the unreleased features already available from the repo, but not in releases.
 
 ## License
 
-Copyright 2019 [Mikko Saari](https://github.com/msaari/) mikko@mikkosaari.fi
+Copyright 2020 [Mikko Saari](https://github.com/msaari/) mikko@mikkosaari.fi
 
 See [license information](LICENSE).

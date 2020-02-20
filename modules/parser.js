@@ -192,6 +192,15 @@ const parse = command => {
 					comment
 				}
 				break
+			case "remove":
+				result = {
+					verb: "remove",
+					object,
+					subject: null,
+					quantity: 0,
+					comment
+				}
+				break
 			default:
 				result = {
 					verb: null,

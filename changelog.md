@@ -8,6 +8,7 @@ like buying too many shares.
 - Support for half-shares.
 
 ## Unreleased (in `master` branch)
+- Added: `remove` will remove a player from the game.
 
 ## 2.2.1 - 2019-08-27
 - Security update to fix a vulnerability in eslint-utils.
