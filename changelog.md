@@ -5,10 +5,13 @@
 like buying too many shares.
 - Command to dump history to a text file.
 - Switch from configstore to conf.
-- Support for half-shares.
 
 ## Unreleased (in `master` branch)
+
+## 2.3.0 - 2020-02-20
 - Added: `remove` will remove a player from the game.
+- Changed: When buying shares from a source, can only buy as many as the source
+has to sell.
 
 ## 2.2.1 - 2019-08-27
 - Security update to fix a vulnerability in eslint-utils.

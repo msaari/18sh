@@ -64,16 +64,24 @@ const _setCurrency = newCurrency => {
 /* Buy and sell shares. */
 
 const buyShares = (actor, company, quantity, price, source) => {
-	let feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
-	const sum = price * quantity
+	let feedback = ""
 	if (source) {
+		const sourceSharesCount = stockHoldings.getSharesOwned(source)
+		if (sourceSharesCount[company] < quantity)
+			quantity = sourceSharesCount[company]
+		feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
 		feedback +=
 			"\n" + stockHoldings.changeSharesOwned(source, company, quantity * -1)
 		if (price > 0) {
+			const sum = price * quantity
 			feedback += "\n" + moveCash(actor, source, sum)
 		}
 	} else if (price > 0) {
+		const sum = price * quantity
+		feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
 		feedback += "\n" + changeCash(actor, sum * -1)
+	} else {
+		feedback = stockHoldings.changeSharesOwned(actor, company, quantity)
 	}
 	return feedback
 }

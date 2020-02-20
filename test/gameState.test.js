@@ -83,6 +83,17 @@ describe("GameState", () => {
 				`${actor} only has ${newTotal}, selling all.`
 			)
 		})
+
+		it("should handle buying too many shares from a source", () => {
+			gameState.changeCash("MIKKO", 1000)
+			expect(gameState._getCash("MIKKO")).to.equal(1000)
+			gameState.buyShares("COMPANY", "COMPANY", 10, 0)
+			expect(gameState._getSharesOwned().COMPANY.COMPANY).to.equal(10)
+			gameState.buyShares("MIKKO", "COMPANY", 11, 10, "COMPANY")
+			expect(gameState._getSharesOwned().MIKKO.COMPANY).to.equal(10)
+			expect(gameState._getSharesOwned().COMPANY.COMPANY).to.equal(0)
+			expect(gameState._getCash("MIKKO")).to.equal(900)
+		})
 	})
 
 	describe("dividend", () => {
