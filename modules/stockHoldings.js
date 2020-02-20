@@ -56,6 +56,7 @@ const closeCompany = company => {
 	Object.keys(sharesOwned).forEach(owner => {
 		Reflect.deleteProperty(sharesOwned[owner], company)
 	})
+	Reflect.deleteProperty(sharesOwned, company)
 	setSharesOwned(sharesOwned)
 }
 

@@ -371,6 +371,7 @@ const float = (company, cash) => {
 
 const close = company => {
 	Reflect.deleteProperty(gameState.companyCash, company)
+	Reflect.deleteProperty(gameState.cash, company)
 	stockHoldings.closeCompany(company)
 	return `Closed ^y${company}^:.\n`
 }
