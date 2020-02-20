@@ -217,7 +217,6 @@ const payHalfDividends = (payingCompany, totalSum) => {
 /* Advance round count. */
 
 const nextRound = roundType => {
-	let feedback = `It's now ^y${_getRound()}^:.\n`
 	if (!gameState.round)
 		gameState.round = {
 			type: "SR",
@@ -232,6 +231,9 @@ const nextRound = roundType => {
 	if (roundType === "OR") {
 		gameState.round.type = "OR"
 		gameState.round.orNumber += 1
+	}
+	let feedback = `It's now ^y${_getRound()}^:.\n`
+	if (roundType === "OR") {
 		feedback += _payIncome()
 	}
 	return feedback

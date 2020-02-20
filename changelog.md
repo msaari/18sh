@@ -7,6 +7,7 @@ like buying too many shares.
 - Switch from configstore to conf.
 
 ## Unreleased (in `master` branch)
+- Fixes a bug where the `next` command feedback shows the previous round.
 
 ## 2.3.0 - 2020-02-20
 - Added: `remove` will remove a player from the game.
