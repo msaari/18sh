@@ -201,6 +201,11 @@ const perform = (command, silent = false) => {
 			normalizedCommand = `${action.verb} ${action.object}`
 			addToHistory = true
 			break
+		case "remove":
+			echoToTerm(gameState.remove(action.object))
+			normalizedCommand = `${action.verb} ${action.object}`
+			addToHistory = true
+			break
 		case "banksize":
 			echoToTerm(gameState.setBankSize(action.quantity, action.object))
 			normalizedCommand = `${action.verb} `
