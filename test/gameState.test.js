@@ -583,14 +583,18 @@ describe("GameState", () => {
 		})
 
 		it("should advance the round correctly", () => {
-			gameState.nextRound("SR")
+			let feedback = gameState.nextRound("SR")
 			expect(gameState._getRound()).to.equal("SR 1")
-			gameState.nextRound("OR")
+			expect(feedback).to.equal("It's now ^ySR 1^:.\n")
+			feedback = gameState.nextRound("OR")
 			expect(gameState._getRound()).to.equal("OR 1.1")
-			gameState.nextRound("OR")
+			expect(feedback).to.equal("It's now ^yOR 1.1^:.\n")
+			feedback = gameState.nextRound("OR")
 			expect(gameState._getRound()).to.equal("OR 1.2")
-			gameState.nextRound("SR")
+			expect(feedback).to.equal("It's now ^yOR 1.2^:.\n")
+			feedback = gameState.nextRound("SR")
 			expect(gameState._getRound()).to.equal("SR 2")
+			expect(feedback).to.equal("It's now ^ySR 2^:.\n")
 		})
 	})
 
