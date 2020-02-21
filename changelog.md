@@ -7,6 +7,9 @@ like buying too many shares.
 - Switch from configstore to conf.
 
 ## Unreleased (in `master` branch)
+
+## 2.3.1 - 2020-02-21
+- Fixed: `remove` now actually works.
 - Fixes a bug where the `next` command feedback shows the previous round.
 
 ## 2.3.0 - 2020-02-20
