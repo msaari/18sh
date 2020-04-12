@@ -5,9 +5,9 @@
   "main": "18sh.js",
   "bin": "18sh.js",
   "scripts": {
-    "test": "env NODE_ENV=test mocha",
-    "watch": "env NODE_ENV=test mocha --watch",
-    "coverage": "env NODE_ENV=test nyc --reporter=html mocha",
+    "test": "cross-env NODE_ENV=test mocha",
+    "watch": "cross-env NODE_ENV=test mocha --watch",
+    "coverage": "cross-env NODE_ENV=test nyc --reporter=html mocha",
     "eslint-check": "eslint --print-config 18sh.js | eslint-config-prettier-check"
   },
   "keywords": [
@@ -20,19 +20,20 @@
   "author": "Mikko Saari",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "cli-table": "^0.3.1",
-    "configstore": "^5.0.0",
-    "terminal-kit": "^1.28.1"
+    "configstore": "^5.0.1",
+    "terminal-kit": "^1.35.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "cross-env": "^7.0.2",
     "eslint": "^5.16.0",
-    "eslint-config-prettier": "^6.0.0",
+    "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "mocha": "^6.1.4",
+    "eslint-plugin-prettier": "^3.1.2",
+    "mocha": "^6.2.3",
     "nyc": "^14.1.1",
-    "prettier": "^1.18.2"
+    "prettier": "^1.19.1"
   }
 }
