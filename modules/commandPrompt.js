@@ -81,7 +81,13 @@ const commandPrompt = () => {
 					commandPrompt()
 					break
 				default:
-					if (gameState.getName()) {
+					if (gameState.getName() ||
+						/* Opening a stored game should always be possible */
+						input.startsWith("o") ||
+						/* Starting a new game should always be possible */
+						input.startsWith("start") || 
+						/* Listing existing games should always be possible */
+						input.startsWith("l")) {
 						perform(input)
 					} else {
 						term("^rNo active game!\n")
