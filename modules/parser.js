@@ -144,14 +144,14 @@ const parse = command => {
 			case "banksiz":
 			case "banksize": {
 				let quantity = 0
-				if (isNaN(parseInt(object))) {
-					if (!isNaN(parseInt(object.substr(1)))) {
-						quantity = parseInt(object.substr(1))
-						object = object.substr(0, 1)
-					}
+				/* eslint-disable "prefer-named-capture-group" */
+				let parts = object.match(/^(\D*)(\d+)$/u)
+				if (parts) {
+					quantity = parseInt(parts[2])
+					object = (parts[1] === "") ? "$" : parts[1]
 				} else {
-					quantity = parseInt(object)
-					object = null
+					quantity = 0
+					object = "$"
 				}
 				result = {
 					verb: "banksize",
