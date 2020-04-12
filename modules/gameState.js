@@ -58,6 +58,14 @@ const addToHistory = command => {
 const _getCurrency = () => gameState.currency
 
 const _setCurrency = newCurrency => {
+	if (newCurrency === "S" || newCurrency === "DLR" || newCurrency === "DOLLAR")
+		newCurrency = "$"
+	else if (newCurrency === "E" || newCurrency === "EUR" || newCurrency === "EURO")
+		newCurrency = "€"
+	else if (newCurrency === "P" || newCurrency === "GBP" || newCurrency === "POUND")
+		newCurrency = "£"
+	else if (newCurrency === "Y" || newCurrency === "YEN")
+		newCurrency = "¥" 
 	gameState.currency = newCurrency
 }
 
