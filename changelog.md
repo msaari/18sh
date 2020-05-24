@@ -7,6 +7,9 @@ like buying too many shares.
 - Switch from configstore to conf.
 
 ## Unreleased (in `master` branch)
+- Fixed: If a player owned 3 shares and sold 4, they would lose 3 shares but get
+paid for 4. This is now fixed: player will only get paid for what they actually
+sold.
 
 ## 2.3.1 - 2020-02-21
 - Fixed: `remove` now actually works.
