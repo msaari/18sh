@@ -5,6 +5,13 @@
 like buying too many shares.
 - Command to dump history to a text file.
 - Switch from configstore to conf.
+- Use $ as the default currency instead of null.
+- Currency symbols can be any string without digits: eg banksize EUR12000
+- Currency symbols for €, $, £ and ¥ can be entered as text: 'E', 'EUR' and 'EURO' are converted to €; 'D', 'DLR' and 'DOLLAR' to $, 'P', 'GBP' and 'POUND' to £, 'Y' and 'YEN' to ¥.
+- LIST, OPEN and START can be used also when there is no active game
+- cross-env has been added as a dev-dependency, because env doesn't work on Windows systems
+- Allow negative shares
+- Show net gain/loss during OR
 
 ## Unreleased (in `master` branch)
 - Fixed: If a player owned 3 shares and sold 4, they would lose 3 shares but get
