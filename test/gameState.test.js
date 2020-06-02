@@ -60,10 +60,11 @@ describe("GameState", () => {
 			)
 		})
 
-		it("should decrease the share count", () => {
+		it("should decrease the share count and increase money", () => {
+			gameState.changeCash(actor, 1000)
 			const sellQuantity = 2
 			const newTotal = quantity - sellQuantity
-			let feedback = gameState.sellShares(actor, company, sellQuantity)
+			let feedback = gameState.sellShares(actor, company, sellQuantity, 100)
 			let sharesOwned = gameState._getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(newTotal)
 			expect(feedback).to.have.string(
@@ -71,28 +72,30 @@ describe("GameState", () => {
 					sellQuantity
 				)} ${company} and now has ${newTotal}.`
 			)
+			expect(gameState._getCash(actor)).to.equal(1200)
 		})
 
 		it("should handle overselling", () => {
-			const sellQuantity = 2
+			const startCash = gameState._getCash(actor)
+			const sellQuantity = 2 // Actor only has 1 share to sell.
 			const newTotal = quantity - sellQuantity
-			let feedback = gameState.sellShares(actor, company, sellQuantity)
+			let feedback = gameState.sellShares(actor, company, sellQuantity, 100)
 			let sharesOwned = gameState._getSharesOwned()
 			expect(sharesOwned[actor][company]).to.equal(0)
 			expect(feedback).to.have.string(
 				`${actor} only has ${newTotal}, selling all.`
 			)
+			expect(gameState._getCash(actor)).to.equal(startCash + 100)
 		})
 
 		it("should handle buying too many shares from a source", () => {
-			gameState.changeCash("MIKKO", 1000)
-			expect(gameState._getCash("MIKKO")).to.equal(1000)
+			const startCash = gameState._getCash(actor)
 			gameState.buyShares("COMPANY", "COMPANY", 10, 0)
 			expect(gameState._getSharesOwned().COMPANY.COMPANY).to.equal(10)
-			gameState.buyShares("MIKKO", "COMPANY", 11, 10, "COMPANY")
-			expect(gameState._getSharesOwned().MIKKO.COMPANY).to.equal(10)
+			gameState.buyShares(actor, "COMPANY", 11, 10, "COMPANY")
+			expect(gameState._getSharesOwned()[actor].COMPANY).to.equal(10)
 			expect(gameState._getSharesOwned().COMPANY.COMPANY).to.equal(0)
-			expect(gameState._getCash("MIKKO")).to.equal(900)
+			expect(gameState._getCash(actor)).to.equal(startCash - 100)
 		})
 	})
 
@@ -439,7 +442,7 @@ describe("GameState", () => {
 				"Value",
 				"MIKKO",
 				"NOOA",
-				"ANNI"
+				"ANNI",
 			])
 			expect(table[1]).to.deep.equal(["NBR", 710, 134, 2, 0, 1])
 			expect(table[2]).to.deep.equal(["CR", 710, 100, 4, 2, 0])
@@ -464,7 +467,7 @@ describe("GameState", () => {
 			const statusBar = gameState.statusBarContent()
 
 			const players = gameState._getPlayers()
-			players.forEach(player => {
+			players.forEach((player) => {
 				const value = gameState._calculatePlayerValue(player)
 				const cash = gameState._getCash(player)
 				expect(cash).not.to.be.null
