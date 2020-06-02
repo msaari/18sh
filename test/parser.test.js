@@ -215,13 +215,13 @@ describe("Parser", () => {
 		it("should return correct for bank size", () => {
 			expect(parser("banksize 4000")).to.include({
 				verb: "banksize",
-				object: null,
+				object: "$",
 				subject: null,
 				quantity: 4000
 			})
 			expect(parser("b 4000")).to.include({
 				verb: "banksize",
-				object: null,
+				object: "$",
 				subject: null,
 				quantity: 4000
 			})
@@ -233,9 +233,15 @@ describe("Parser", () => {
 			})
 			expect(parser("banksize word")).to.include({
 				verb: "banksize",
-				object: "WORD",
+				object: "$",
 				subject: null,
 				quantity: 0
+			})
+			expect(parser("banksize EUR4000")).to.include({
+				verb: "banksize",
+				object: "EUR",
+				subject: null,
+				quantity: 4000
 			})
 		})
 		it("should return correct for bank", () => {
